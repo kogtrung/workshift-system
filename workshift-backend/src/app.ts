@@ -14,6 +14,9 @@ import registrationRoutes from './routes/registrationRoutes';
 import availabilityRoutes from './routes/availabilityRoutes';
 import meRoutes from './routes/meRoutes';
 import memberPositionRoutes from './routes/memberPositionRoutes';
+import salaryConfigRoutes from './routes/salaryConfigRoutes';
+import payrollRoutes from './routes/payrollRoutes';
+import understaffedAlertRoutes from './routes/understaffedAlertRoutes';
 import { errorHandler } from './middleware/errorHandler';
 import { notFoundHandler } from './middleware/notFound';
 
@@ -45,6 +48,10 @@ export function createApp() {
 
   app.use('/api/v1/auth', authRoutes);
   /* Route cụ thể /groups/:groupId/... phải trước router /groups để không bị nuốt bởi :id */
+  app.use('/api/v1/groups/:groupId/my-positions', memberPositionRoutes);
+  app.use('/api/v1/groups/:groupId/salary-configs', salaryConfigRoutes);
+  app.use('/api/v1/groups/:groupId/payroll', payrollRoutes);
+  app.use('/api/v1/groups/:groupId/alerts', understaffedAlertRoutes);
   app.use('/api/v1/groups/:groupId/positions', positionRoutes);
   app.use('/api/v1/groups/:groupId/shift-templates', shiftTemplateRoutes);
   app.use('/api/v1/groups/:groupId/shifts', shiftRoutes);

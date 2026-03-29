@@ -2,8 +2,10 @@ import type { RequestHandler } from 'express';
 import { apiCreated, apiOk } from '../common/apiResponse';
 import { AppError } from '../common/appError';
 import { shiftService } from '../services/shiftService';
+import { recommendationService } from '../services/recommendationService';
 import type { z } from 'zod';
 import { shiftsListQuerySchema } from '../validation/shiftPhaseSchemas';
+import { shiftRecommendationsQuerySchema } from '../validation/phaseGSchemas';
 
 function parseId(p: string | string[] | undefined): number {
   const s = Array.isArray(p) ? p[0] : p;
@@ -88,6 +90,26 @@ export const lockShift: RequestHandler = async (req, res, next) => {
     }
     const data = await shiftService.lockShift(groupId, shiftId, req.authUser!.username);
     res.json(apiOk('Khóa ca làm việc thành công', data));
+  } catch (e) {
+    next(e);
+  }
+};
+
+export const getShiftRecommendations: RequestHandler = async (req, res, next) => {
+  try {
+    const groupId = parseId(req.params.groupId);
+    const shiftId = parseId(req.params.shiftId);
+    if (Number.isNaN(groupId) || Number.isNaN(shiftId)) {
+      throw new AppError(400, 'id không hợp lệ');
+    }
+    const q = req.validatedQuery as z.infer<typeof shiftRecommendationsQuerySchema>;
+    const data = await recommendationService.listRecommendations(
+      req.authUser!.username,
+      groupId,
+      shiftId,
+      q.positionId
+    );
+    res.json(apiOk('Gợi ý nhân viên phù hợp', data));
   } catch (e) {
     next(e);
   }
