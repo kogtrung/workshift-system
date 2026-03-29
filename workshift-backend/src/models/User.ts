@@ -10,6 +10,8 @@ export interface IUser extends mongoose.Document {
   phone?: string;
   status: UserStatus;
   globalRole: GlobalRole;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const userSchema = new mongoose.Schema<IUser>(
@@ -23,7 +25,7 @@ const userSchema = new mongoose.Schema<IUser>(
   status: { type: String, enum: ['ACTIVE', 'BANNED'], default: 'ACTIVE' },
   globalRole: { type: String, enum: ['USER', 'ADMIN'], default: 'USER' },
   },
-  { id: false }
+  { id: false, timestamps: true }
 );
 
 userSchema.set('toJSON', {

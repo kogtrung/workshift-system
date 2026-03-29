@@ -5,6 +5,8 @@ export interface ITemplateRequirement extends mongoose.Document {
   templateId: number;
   positionId: number;
   quantity: number;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const templateRequirementSchema = new mongoose.Schema<ITemplateRequirement>(
@@ -14,7 +16,7 @@ const templateRequirementSchema = new mongoose.Schema<ITemplateRequirement>(
     positionId: { type: Number, required: true },
     quantity: { type: Number, required: true, min: 1 },
   },
-  { id: false }
+  { id: false, timestamps: true }
 );
 
 templateRequirementSchema.set('toJSON', {

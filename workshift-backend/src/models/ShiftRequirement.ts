@@ -5,6 +5,8 @@ export interface IShiftRequirement extends mongoose.Document {
   shiftId: number;
   positionId: number;
   quantity: number;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const shiftRequirementSchema = new mongoose.Schema<IShiftRequirement>(
@@ -14,7 +16,7 @@ const shiftRequirementSchema = new mongoose.Schema<IShiftRequirement>(
     positionId: { type: Number, required: true },
     quantity: { type: Number, required: true, min: 1 },
   },
-  { id: false }
+  { id: false, timestamps: true }
 );
 
 shiftRequirementSchema.index({ shiftId: 1, positionId: 1 }, { unique: true });

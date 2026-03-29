@@ -7,6 +7,8 @@ export interface IShiftTemplate extends mongoose.Document {
   startTime: string;
   endTime: string;
   description?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const shiftTemplateSchema = new mongoose.Schema<IShiftTemplate>(
@@ -18,7 +20,7 @@ const shiftTemplateSchema = new mongoose.Schema<IShiftTemplate>(
     endTime: { type: String, required: true },
     description: { type: String, maxlength: 1000 },
   },
-  { id: false }
+  { id: false, timestamps: true }
 );
 
 shiftTemplateSchema.index({ groupId: 1, name: 1 }, { unique: true });

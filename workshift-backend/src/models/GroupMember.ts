@@ -8,6 +8,8 @@ export interface IGroupMember extends mongoose.Document {
   role: GroupRole;
   status: GroupMemberStatus;
   joinedAt: Date | null;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const groupMemberSchema = new mongoose.Schema<IGroupMember>(
@@ -23,7 +25,7 @@ const groupMemberSchema = new mongoose.Schema<IGroupMember>(
     },
     joinedAt: { type: Date, default: null },
   },
-  { id: false }
+  { id: false, timestamps: true }
 );
 
 groupMemberSchema.index({ groupId: 1, userId: 1 }, { unique: true });
