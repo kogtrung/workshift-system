@@ -1,6 +1,7 @@
 import { AppError } from '../common/appError';
 import { Availability } from '../models/Availability';
 import { GroupMember } from '../models/GroupMember';
+import { MemberPosition } from '../models/MemberPosition';
 import { Position } from '../models/Position';
 import { Registration } from '../models/Registration';
 import { Shift } from '../models/Shift';
@@ -106,6 +107,18 @@ export const registrationService = {
     const requirement = await ShiftRequirement.findOne({ shiftId, positionId: body.positionId });
     if (!requirement) {
       throw new AppError(400, 'Vị trí không hợp lệ cho ca này');
+    }
+
+    const configuredCount = await MemberPosition.countDocuments({ userId: user.id, groupId });
+    if (configuredCount > 0) {
+      const allowed = await MemberPosition.findOne({
+        userId: user.id,
+        groupId,
+        positionId: body.positionId,
+      }).lean();
+      if (!allowed) {
+        throw new AppError(400, 'Bạn chưa được gán vị trí này trong nhóm');
+      }
     }
 
     const availabilities = await Availability.find({ userId: user.id }).lean();

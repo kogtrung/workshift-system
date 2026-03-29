@@ -11,6 +11,9 @@ import shiftRoutes from './routes/shiftRoutes';
 import shiftRequirementRoutes from './routes/shiftRequirementRoutes';
 import shiftRegistrationRoutes from './routes/shiftRegistrationRoutes';
 import registrationRoutes from './routes/registrationRoutes';
+import availabilityRoutes from './routes/availabilityRoutes';
+import meRoutes from './routes/meRoutes';
+import memberPositionRoutes from './routes/memberPositionRoutes';
 import { errorHandler } from './middleware/errorHandler';
 import { notFoundHandler } from './middleware/notFound';
 
@@ -49,6 +52,8 @@ export function createApp() {
   app.use('/api/v1/shifts/:shiftId/requirements', shiftRequirementRoutes);
   app.use('/api/v1/shifts/:shiftId', shiftRegistrationRoutes);
   app.use('/api/v1/registrations', registrationRoutes);
+  app.use('/api/v1/availability', availabilityRoutes);
+  app.use('/api/v1/me', meRoutes);
   app.use('/api/v1/admin', adminRoutes);
 
   app.use(notFoundHandler);

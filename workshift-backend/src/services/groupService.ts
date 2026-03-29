@@ -2,6 +2,7 @@ import { AppError } from '../common/appError';
 import { Group } from '../models/Group';
 import { GroupMember } from '../models/GroupMember';
 import { GroupAuditLog } from '../models/GroupAuditLog';
+import { MemberPosition } from '../models/MemberPosition';
 import { Position } from '../models/Position';
 import { Registration } from '../models/Registration';
 import { Shift } from '../models/Shift';
@@ -267,6 +268,7 @@ export const groupService = {
       await TemplateRequirement.deleteMany({ templateId: { $in: templateIds } });
     }
     await ShiftTemplate.deleteMany({ groupId });
+    await MemberPosition.deleteMany({ groupId });
     await Position.deleteMany({ groupId });
 
     await GroupAuditLog.deleteMany({ groupId });
