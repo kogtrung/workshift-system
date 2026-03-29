@@ -8,11 +8,11 @@
 | Thành phần | Vị trí | Ghi chú |
 |------------|--------|---------|
 | Frontend | `workshift-frontend/` | `VITE_API_BASE_URL` → backend đang chạy (`…/api/v1`). |
-| Backend | `workshift-backend/` | Express + TypeScript + MongoDB. Hợp đồng REST: **`.cursor/rules/workshift-node-express-parity.vi.mdc`**; roadmap nghiệp vụ: **mục I–VII** trong file này. |
+| Backend | `workshift-backend/` | Express + TypeScript + MongoDB. Hợp đồng REST: envelope JSON trong mã (`apiResponse` / `errorResponse`) và **README**; roadmap nghiệp vụ: **mục I–VII** trong file này. *(Bảng route mở rộng có thể giữ local trong `.cursor/rules/` — không bắt buộc trên Git.)* |
 | Đặc tả | `docs/spec.md` | Nghiệp vụ B01–B26; mô hình dữ liệu tham chiếu. |
 
-Roadmap phía dưới là **hạng mục nghiệp vụ theo nhóm**; triển khai backend bám **mục I** và hợp đồng API (rule parity).  
-*(Công việc Agent port song song với mã nền Spring có sẵn — không bắt buộc cho dev thuần Node — xem **`docs/internal/agent-handoff-java-to-node.vi.md`**.)*
+Roadmap phía dưới là **hạng mục nghiệp vụ theo nhóm**; triển khai backend bám **mục I** và hợp đồng API trong mã.  
+*(Nếu có clone **Spring** local trong `workshift-backend-j/` — không trên Git — có thể đối chiếu khi port; dev thuần Node không bắt buộc.)*
 
 ---
 

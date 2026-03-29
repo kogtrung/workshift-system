@@ -101,10 +101,9 @@ Chi tiết mã nghiệp vụ **B01–B26**: xem **`docs/spec.md`** và **`docs/t
 |------------|--------|---------|
 | Backend (triển khai) | `workshift-backend/` | REST `/api/v1`, Express, TypeScript, Mongoose, JWT hai secret, Zod |
 | Frontend | `workshift-frontend/` | SPA, `apiClient` + `features/**/*Api.js` |
-| Tài liệu công khai | `docs/tasks.md`, `docs/spec.md` | Roadmap, phân nhiệm vụ, đặc tả nghiệp vụ |
-| Tài liệu nội bộ | `docs/internal/` | Chỉ mục Agent, handoff port, luồng UI — **`docs/internal/README.md`** |
-| Hợp đồng API | `.cursor/rules/workshift-node-express-parity.vi.mdc` | Bảng route, envelope JSON, CORS, auth |
-| Mã tham chiếu (tuỳ chọn) | `workshift-backend-j/` | Đối chiếu parity; không bắt buộc để chạy Node |
+| Tài liệu trên Git | `README.md`, `docs/tasks.md`, `docs/spec.md` | Hướng dẫn, roadmap, đặc tả B01–B26 |
+| Tài liệu / rule chỉ local | `docs/internal/`, `.cursor/rules/` | Kế hoạch Cursor, handoff Java→Node, bảng parity API — **không push** (xem `.gitignore`) |
+| Mã Java tham chiếu (local) | `workshift-backend-j/`, (tuỳ chọn) `workshift-frontend-j/` | Đối chiếu khi port; **không push** |
 
 ---
 
@@ -123,10 +122,11 @@ workshift-system/
 │       └── features/        # *Api.js theo module
 ├── docs/
 │   ├── tasks.md
-│   ├── spec.md
-│   └── internal/            # tài liệu Agent / chi tiết parity
+│   └── spec.md
 └── README.md
 ```
+
+*(Tuỳ máy dev: `docs/internal/`, `.cursor/`, thư mục Java `*-j/` tham chiếu — **không** có trên remote, xem `.gitignore`.)*
 
 ---
 
@@ -211,7 +211,7 @@ Trình duyệt thường: **http://localhost:5173** (Vite).
 | `POST` | `/api/v1/auth/register` | Đăng ký |
 | `POST` | `/api/v1/auth/login` | `usernameOrEmail`, `password` → `token`, `refreshToken`, `userId`, … |
 
-Bảng route đầy đủ: **`.cursor/rules/workshift-node-express-parity.vi.mdc`**.
+Route đang mở: xem thư mục `workshift-backend/src/routes/`. Bảng parity chi tiết (nếu cần) có thể duy trì local trong **`.cursor/rules/workshift-node-express-parity.vi.mdc`** — không bắt buộc trên Git.
 
 ---
 
@@ -245,16 +245,15 @@ Bảng route đầy đủ: **`.cursor/rules/workshift-node-express-parity.vi.mdc
 
 ## 📚 Tài liệu
 
+**Đồng bộ trên Git (mọi người clone đều có):**
+
 | Tài liệu | Nội dung |
 |----------|----------|
-| 📋 `docs/tasks.md` | Roadmap, phân nhiệm vụ B01–B26, quy trình, CI/CD |
-| 📄 `docs/spec.md` | Đặc tả nghiệp vụ, mô hình dữ liệu tham chiếu |
-| 📂 `docs/internal/README.md` | Chỉ mục tài liệu nội bộ & quy trình Agent |
-| 🔧 `docs/internal/agent-handoff-java-to-node.vi.md` | Lộ trình port theo phase (parity) |
-| 🖥️ `docs/internal/ui-flows.md` | Luồng UI ↔ API theo màn hình |
-| 📜 `.cursor/rules/workshift-node-express-parity.vi.mdc` | Hợp đồng REST & envelope JSON |
+| `README.md` (file này) | Cài đặt, kiến trúc, ví dụ API, biến môi trường |
+| `docs/tasks.md` | Roadmap theo giai đoạn, phân nhiệm vụ B01–B26 |
+| `docs/spec.md` | Đặc tả nghiệp vụ, mô hình dữ liệu |
 
-> Tài liệu **mặt tiền** dự án Node: **README này** + **`docs/tasks.md`** + **`docs/spec.md`**. Chi tiết sâu và tài liệu Agent: **`docs/internal/`**.
+**Chỉ trên máy dev** (đã ignore, không push): thư mục **`docs/internal/`** (kế hoạch Cursor, handoff Java→Node, `ui-flows`), **`workshift-backend-j/`** (mã Spring tham chiếu), và **`.cursor/rules/`** (bảng route parity mở rộng). Dùng để Cursor đọc và chuyển đổi dần; khi thay đổi hành vi API cần thống nhất team, cập nhật **`docs/spec.md`** / **`README.md`** / **`docs/tasks.md`** rồi mới push.
 
 ---
 

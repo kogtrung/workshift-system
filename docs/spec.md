@@ -8,7 +8,7 @@
 **Ghi chú triển khai (repo `workshift-system`):**
 
 - **Frontend** (`workshift-frontend`): React 19 + Vite 7; API qua `fetch` (`apiClient.js`).
-- **Backend** (`workshift-backend`): Express + TypeScript + MongoDB (Mongoose); **JSON API** khớp frontend và `.cursor/rules/workshift-node-express-parity.vi.mdc`. Lộ trình triển khai nghiệp vụ: **`docs/tasks.md`** (roadmap theo giai đoạn).
+- **Backend** (`workshift-backend`): Express + TypeScript + MongoDB (Mongoose); **JSON API** khớp frontend, envelope thống nhất trong mã backend và mô tả trong **README**. Lộ trình triển khai nghiệp vụ: **`docs/tasks.md`** (roadmap theo giai đoạn).
 - Phần **schema thực thể** dưới đây là *mô hình dữ liệu logic* (bảng quan hệ). Trên MongoDB có thể tách/ghép collection khác miễn **API và nghiệp vụ** không đổi.
 
 ---

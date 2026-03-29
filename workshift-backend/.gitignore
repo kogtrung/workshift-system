@@ -38,8 +38,11 @@ bower_components
 build/Release
 
 # Dependency directories
-node_modules/
+node_modules
 jspm_packages/
+
+# Không dùng `*.d.ts` toàn cục — sẽ làm mất track `src/types/express.d.ts` (augment Express).
+# File build `.d.ts` trong `dist/` đã bị ignore qua `dist` ở trên.
 
 # Optional npm cache directory
 .npm
@@ -103,11 +106,3 @@ dist
 
 # Dist folder
 dist
-
-# --- Chỉ local (không push): Cursor, tài liệu nội bộ, mã Java tham chiếu khi port sang Node ---
-.cursor/
-docs/internal/
-
-# Dự án Java đặt cạnh repo để đối chiếu (Spring / module cũ) — không đưa lên remote
-workshift-backend-j/
-workshift-frontend/
