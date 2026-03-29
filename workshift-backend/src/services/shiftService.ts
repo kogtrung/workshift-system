@@ -367,7 +367,7 @@ export const shiftService = {
 
     const filtered = openShifts.filter(
       (shift) =>
-        matchesAvailability(shift, availabilities) && hasAvailableSlots(shift.id)
+        shiftMatchesMemberAvailability(shift, availabilities) && hasAvailableSlots(shift.id)
     );
 
     const out = [];
@@ -390,7 +390,7 @@ export const shiftService = {
   },
 };
 
-function matchesAvailability(
+export function shiftMatchesMemberAvailability(
   shift: { date: string; startTime: string; endTime: string },
   availabilities: Array<{ dayOfWeek: number; startTime: string; endTime: string }>
 ): boolean {
