@@ -106,3 +106,7 @@ dist
 
 # Dist folder
 dist
+.cursor
+workshift-backend-j
+workshift-frontend
+internal/
