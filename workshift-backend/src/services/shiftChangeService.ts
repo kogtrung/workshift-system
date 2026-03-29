@@ -5,6 +5,7 @@ import { Registration } from '../models/Registration';
 import { Shift } from '../models/Shift';
 import { ShiftChangeRequest } from '../models/ShiftChangeRequest';
 import { ShiftRequirement } from '../models/ShiftRequirement';
+import { Position } from '../models/Position';
 import { User } from '../models/User';
 import { getNextSequence } from './sequenceService';
 import { assertManager, assertMemberApproved } from './membership';
@@ -73,6 +74,14 @@ async function toRequestDto(r: {
     Shift.findOne({ id: r.fromShiftId }).lean(),
     r.toShiftId != null ? Shift.findOne({ id: r.toShiftId }).lean() : Promise.resolve(null),
   ]);
+  const fromReg = await Registration.findOne({
+    userId: r.userId,
+    shiftId: r.fromShiftId,
+    status: 'APPROVED',
+  }).lean();
+  const fromPos = fromReg
+    ? await Position.findOne({ id: fromReg.positionId, groupId: r.groupId }).lean()
+    : null;
   return {
     id: r.id,
     groupId: r.groupId,
@@ -80,10 +89,13 @@ async function toRequestDto(r: {
     username: u?.username ?? '',
     fullName: u?.fullName?.trim() || u?.username || '',
     fromShiftId: r.fromShiftId,
+    fromShiftName: fromS?.name ?? null,
     fromShiftDate: fromS?.date ?? null,
     fromShiftStartTime: fromS?.startTime ?? null,
     fromShiftEndTime: fromS?.endTime ?? null,
+    fromPositionName: fromPos?.name ?? null,
     toShiftId: r.toShiftId ?? null,
+    toShiftName: toS?.name ?? null,
     toShiftDate: toS?.date ?? null,
     toShiftStartTime: toS?.startTime ?? null,
     toShiftEndTime: toS?.endTime ?? null,
