@@ -23,7 +23,7 @@ const groupAuditLogSchema = new mongoose.Schema<IGroupAuditLog>(
     actorUserId: { type: Number, required: true, index: true },
     actorRole: { type: String, enum: ['MANAGER', 'MEMBER'], required: true },
     actionType: { type: String, required: true },
-    entityType: { type: String, enum: ['GROUP', 'GROUP_MEMBER'], required: true },
+    entityType: { type: String, enum: ['GROUP', 'GROUP_MEMBER', 'REGISTRATION'], required: true },
     entityId: { type: Number, required: true },
     occurredAt: { type: Date, required: true, index: true },
     summary: { type: String, required: true },
