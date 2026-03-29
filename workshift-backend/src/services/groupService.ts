@@ -2,6 +2,12 @@ import { AppError } from '../common/appError';
 import { Group } from '../models/Group';
 import { GroupMember } from '../models/GroupMember';
 import { GroupAuditLog } from '../models/GroupAuditLog';
+import { Position } from '../models/Position';
+import { Registration } from '../models/Registration';
+import { Shift } from '../models/Shift';
+import { ShiftRequirement } from '../models/ShiftRequirement';
+import { ShiftTemplate } from '../models/ShiftTemplate';
+import { TemplateRequirement } from '../models/TemplateRequirement';
 import { User } from '../models/User';
 import type { GroupMemberReviewAction } from '../types/group';
 import { getNextSequence } from './sequenceService';
@@ -246,6 +252,22 @@ export const groupService = {
     if (!group) {
       throw new AppError(404, 'Không tìm thấy group');
     }
+
+    const shifts = await Shift.find({ groupId }).select('id').lean();
+    const shiftIds = shifts.map((s) => s.id);
+    if (shiftIds.length > 0) {
+      await ShiftRequirement.deleteMany({ shiftId: { $in: shiftIds } });
+      await Registration.deleteMany({ shiftId: { $in: shiftIds } });
+    }
+    await Shift.deleteMany({ groupId });
+
+    const templates = await ShiftTemplate.find({ groupId }).select('id').lean();
+    const templateIds = templates.map((t) => t.id);
+    if (templateIds.length > 0) {
+      await TemplateRequirement.deleteMany({ templateId: { $in: templateIds } });
+    }
+    await ShiftTemplate.deleteMany({ groupId });
+    await Position.deleteMany({ groupId });
 
     await GroupAuditLog.deleteMany({ groupId });
     await GroupMember.deleteMany({ groupId });

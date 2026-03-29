@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const createGroupSchema = z.object({
   name: z.string().min(1, 'Tên group không được để trống').max(255, 'Tên group tối đa 255 ký tự'),
-  description: z.string().max(1000, 'Mô tả tối đa 1000 ký tự').optional(),
+  description: z.string().max(1000, 'Mô tả tối đa 1000 ký tự').nullish(),
 });
 
 export const updateGroupSchema = createGroupSchema;
