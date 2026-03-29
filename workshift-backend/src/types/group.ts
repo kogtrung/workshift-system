@@ -12,8 +12,12 @@ export type GroupAuditActionType =
   | 'GROUP_DELETED'
   | 'GROUP_MEMBER_JOIN_REQUESTED'
   | 'GROUP_MEMBER_APPROVED'
-  | 'GROUP_MEMBER_REJECTED';
+  | 'GROUP_MEMBER_REJECTED'
+  | 'REGISTRATION_CREATED'
+  | 'REGISTRATION_APPROVED'
+  | 'REGISTRATION_REJECTED'
+  | 'REGISTRATION_CANCELLED';
 
-export type GroupAuditEntityType = 'GROUP' | 'GROUP_MEMBER';
+export type GroupAuditEntityType = 'GROUP' | 'GROUP_MEMBER' | 'REGISTRATION';
 
 export type GroupMemberReviewAction = 'APPROVE' | 'REJECT';
