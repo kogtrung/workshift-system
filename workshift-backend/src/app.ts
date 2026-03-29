@@ -5,6 +5,10 @@ import { loadAuthEnv } from './config/env';
 import authRoutes from './routes/authRoutes';
 import groupRoutes from './routes/groupRoutes';
 import adminRoutes from './routes/adminRoutes';
+import positionRoutes from './routes/positionRoutes';
+import shiftTemplateRoutes from './routes/shiftTemplateRoutes';
+import shiftRoutes from './routes/shiftRoutes';
+import shiftRequirementRoutes from './routes/shiftRequirementRoutes';
 import { errorHandler } from './middleware/errorHandler';
 import { notFoundHandler } from './middleware/notFound';
 
@@ -35,7 +39,12 @@ export function createApp() {
   });
 
   app.use('/api/v1/auth', authRoutes);
+  /* Route cụ thể /groups/:groupId/... phải trước router /groups để không bị nuốt bởi :id */
+  app.use('/api/v1/groups/:groupId/positions', positionRoutes);
+  app.use('/api/v1/groups/:groupId/shift-templates', shiftTemplateRoutes);
+  app.use('/api/v1/groups/:groupId/shifts', shiftRoutes);
   app.use('/api/v1/groups', groupRoutes);
+  app.use('/api/v1/shifts/:shiftId/requirements', shiftRequirementRoutes);
   app.use('/api/v1/admin', adminRoutes);
 
   app.use(notFoundHandler);
