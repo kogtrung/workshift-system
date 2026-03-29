@@ -17,6 +17,11 @@ export function timeToSeconds(t: string): number {
   return h * 3600 + m * 60 + s;
 }
 
+/** Số giờ giữa hai mốc thời gian cùng ngày (end > start). */
+export function shiftDurationHours(startTime: string, endTime: string): number {
+  return (timeToSeconds(endTime) - timeToSeconds(startTime)) / 3600;
+}
+
 /** Trùng khung theo query Java: start1 < end2 && end1 > start2 */
 export function timeRangesOverlap(start1: string, end1: string, start2: string, end2: string): boolean {
   const s1 = timeToSeconds(start1);
