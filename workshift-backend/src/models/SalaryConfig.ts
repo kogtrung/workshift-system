@@ -9,6 +9,8 @@ export interface ISalaryConfig extends mongoose.Document {
   userId?: number;
   hourlyRate: number;
   effectiveDate: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const salaryConfigSchema = new mongoose.Schema<ISalaryConfig>(
@@ -20,7 +22,7 @@ const salaryConfigSchema = new mongoose.Schema<ISalaryConfig>(
     hourlyRate: { type: Number, required: true, min: 0 },
     effectiveDate: { type: String, required: true, index: true },
   },
-  { id: false }
+  { id: false, timestamps: true }
 );
 
 salaryConfigSchema.index({ groupId: 1, effectiveDate: -1 });

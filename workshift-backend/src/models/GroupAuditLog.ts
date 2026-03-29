@@ -14,6 +14,8 @@ export interface IGroupAuditLog extends mongoose.Document {
   beforeData: string | null;
   afterData: string | null;
   metadata: string | null;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const groupAuditLogSchema = new mongoose.Schema<IGroupAuditLog>(
@@ -31,7 +33,7 @@ const groupAuditLogSchema = new mongoose.Schema<IGroupAuditLog>(
     afterData: { type: String, default: null },
     metadata: { type: String, default: null },
   },
-  { id: false }
+  { id: false, timestamps: true }
 );
 
 groupAuditLogSchema.index({ groupId: 1, occurredAt: -1 });

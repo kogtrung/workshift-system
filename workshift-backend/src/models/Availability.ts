@@ -6,6 +6,8 @@ export interface IAvailability extends mongoose.Document {
   dayOfWeek: number;
   startTime: string;
   endTime: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const availabilitySchema = new mongoose.Schema<IAvailability>(
@@ -16,7 +18,7 @@ const availabilitySchema = new mongoose.Schema<IAvailability>(
     startTime: { type: String, required: true },
     endTime: { type: String, required: true },
   },
-  { id: false }
+  { id: false, timestamps: true }
 );
 
 availabilitySchema.set('toJSON', {

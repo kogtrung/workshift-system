@@ -9,6 +9,8 @@ export interface IRegistration extends mongoose.Document {
   status: RegistrationStatus;
   note?: string;
   managerNote?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const registrationSchema = new mongoose.Schema<IRegistration>(
@@ -25,7 +27,7 @@ const registrationSchema = new mongoose.Schema<IRegistration>(
     note: { type: String, maxlength: 1000 },
     managerNote: { type: String, maxlength: 1000 },
   },
-  { id: false }
+  { id: false, timestamps: true }
 );
 
 registrationSchema.set('toJSON', {

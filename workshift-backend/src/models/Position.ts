@@ -5,6 +5,8 @@ export interface IPosition extends mongoose.Document {
   groupId: number;
   name: string;
   colorCode?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const positionSchema = new mongoose.Schema<IPosition>(
@@ -14,7 +16,7 @@ const positionSchema = new mongoose.Schema<IPosition>(
     name: { type: String, required: true, maxlength: 255 },
     colorCode: { type: String, maxlength: 50 },
   },
-  { id: false }
+  { id: false, timestamps: true }
 );
 
 positionSchema.index({ groupId: 1, name: 1 }, { unique: true });
