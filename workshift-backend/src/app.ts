@@ -17,6 +17,8 @@ import memberPositionRoutes from './routes/memberPositionRoutes';
 import salaryConfigRoutes from './routes/salaryConfigRoutes';
 import payrollRoutes from './routes/payrollRoutes';
 import understaffedAlertRoutes from './routes/understaffedAlertRoutes';
+import shiftChangeRoutes from './routes/shiftChangeRoutes';
+import activityReportRoutes from './routes/activityReportRoutes';
 import { errorHandler } from './middleware/errorHandler';
 import { notFoundHandler } from './middleware/notFound';
 
@@ -52,6 +54,8 @@ export function createApp() {
   app.use('/api/v1/groups/:groupId/salary-configs', salaryConfigRoutes);
   app.use('/api/v1/groups/:groupId/payroll', payrollRoutes);
   app.use('/api/v1/groups/:groupId/alerts', understaffedAlertRoutes);
+  app.use('/api/v1/groups/:groupId/shift-change-requests', shiftChangeRoutes);
+  app.use('/api/v1/groups/:groupId/reports', activityReportRoutes);
   app.use('/api/v1/groups/:groupId/positions', positionRoutes);
   app.use('/api/v1/groups/:groupId/shift-templates', shiftTemplateRoutes);
   app.use('/api/v1/groups/:groupId/shifts', shiftRoutes);
