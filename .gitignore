@@ -41,9 +41,6 @@ build/Release
 node_modules/
 jspm_packages/
 
-# TypeScript v1 declaration files
-*.d.ts
-
 # Optional npm cache directory
 .npm
 
@@ -106,7 +103,11 @@ dist
 
 # Dist folder
 dist
-.cursor
-workshift-backend-j
-workshift-frontend
-internal/
+
+# --- Chỉ local (không push): Cursor, tài liệu nội bộ, mã Java tham chiếu khi port sang Node ---
+.cursor/
+docs/internal/
+
+# Dự án Java đặt cạnh repo để đối chiếu (Spring / module cũ) — không đưa lên remote
+workshift-backend-j/
+workshift-frontend/

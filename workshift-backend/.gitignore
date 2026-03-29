@@ -41,8 +41,8 @@ build/Release
 node_modules
 jspm_packages/
 
-# TypeScript v1 declaration files
-*.d.ts
+# Không dùng `*.d.ts` toàn cục — sẽ làm mất track `src/types/express.d.ts` (augment Express).
+# File build `.d.ts` trong `dist/` đã bị ignore qua `dist` ở trên.
 
 # Optional npm cache directory
 .npm
