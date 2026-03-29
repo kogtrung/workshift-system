@@ -4,6 +4,7 @@ import { GroupMember } from '../models/GroupMember';
 import { GroupAuditLog } from '../models/GroupAuditLog';
 import { MemberPosition } from '../models/MemberPosition';
 import { SalaryConfig } from '../models/SalaryConfig';
+import { ShiftChangeRequest } from '../models/ShiftChangeRequest';
 import { Position } from '../models/Position';
 import { Registration } from '../models/Registration';
 import { Shift } from '../models/Shift';
@@ -254,6 +255,8 @@ export const groupService = {
     if (!group) {
       throw new AppError(404, 'Không tìm thấy group');
     }
+
+    await ShiftChangeRequest.deleteMany({ groupId });
 
     const shifts = await Shift.find({ groupId }).select('id').lean();
     const shiftIds = shifts.map((s) => s.id);
