@@ -45,6 +45,35 @@ export function SalaryConfigPage() {
 
   useEffect(() => { loadData() }, [groupId])
 
+  const positionNameById = useMemo(() => {
+    const m = new Map()
+    for (const p of positions) m.set(Number(p.id), p.name ?? '')
+    return m
+  }, [positions])
+
+  const memberLabelByUserId = useMemo(() => {
+    const m = new Map()
+    for (const mb of members) {
+      const uid = Number(mb.userId)
+      const label = (mb.fullName && String(mb.fullName).trim()) || mb.username || ''
+      m.set(uid, label)
+    }
+    return m
+  }, [members])
+
+  function resolveConfigDisplayName(cfg) {
+    if (cfg.userId != null && cfg.userId !== '') {
+      const uid = Number(cfg.userId)
+      return (cfg.userFullName && String(cfg.userFullName).trim())
+        || memberLabelByUserId.get(uid)
+        || `NV #${cfg.userId}`
+    }
+    const pid = cfg.positionId != null ? Number(cfg.positionId) : null
+    return (cfg.positionName && String(cfg.positionName).trim())
+      || (pid != null ? positionNameById.get(pid) : null)
+      || (pid != null ? `Vị trí #${pid}` : '—')
+  }
+
   function showToast(msg) {
     setToast(msg)
     setTimeout(() => setToast(null), 3500)
