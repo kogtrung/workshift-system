@@ -8,6 +8,8 @@ export interface IGroup extends mongoose.Document {
   joinCode: string;
   createdByUserId: number;
   status: GroupStatus;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const groupSchema = new mongoose.Schema<IGroup>(
@@ -19,7 +21,7 @@ const groupSchema = new mongoose.Schema<IGroup>(
     createdByUserId: { type: Number, required: true, index: true },
     status: { type: String, enum: ['ACTIVE', 'INACTIVE'], default: 'ACTIVE' },
   },
-  { id: false }
+  { id: false, timestamps: true }
 );
 
 groupSchema.set('toJSON', {

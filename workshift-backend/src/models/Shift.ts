@@ -11,6 +11,8 @@ export interface IShift extends mongoose.Document {
   endTime: string;
   note?: string;
   status: ShiftStatus;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const shiftSchema = new mongoose.Schema<IShift>(
@@ -25,7 +27,7 @@ const shiftSchema = new mongoose.Schema<IShift>(
     note: { type: String, maxlength: 1000 },
     status: { type: String, enum: ['OPEN', 'LOCKED', 'COMPLETED'], default: 'OPEN' },
   },
-  { id: false }
+  { id: false, timestamps: true }
 );
 
 shiftSchema.index({ groupId: 1, date: 1 });

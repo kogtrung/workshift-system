@@ -6,6 +6,8 @@ export interface IMemberPosition extends mongoose.Document {
   userId: number;
   groupId: number;
   positionId: number;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const memberPositionSchema = new mongoose.Schema<IMemberPosition>(
@@ -15,7 +17,7 @@ const memberPositionSchema = new mongoose.Schema<IMemberPosition>(
     groupId: { type: Number, required: true, index: true },
     positionId: { type: Number, required: true },
   },
-  { id: false }
+  { id: false, timestamps: true }
 );
 
 memberPositionSchema.index({ userId: 1, groupId: 1, positionId: 1 }, { unique: true });
