@@ -28,10 +28,22 @@ export function createApp() {
   const app = express();
   app.set('trust proxy', 1);
 
+  // Allow production origins configured by env.
+  // - `CORS_ORIGINS="https://a.com,https://b.com"`
+  // - Or set `CORS_ORIGINS="*"` to allow all (dev convenience).
+  const corsOriginsRaw = (process.env.CORS_ORIGINS || '').trim();
+  const corsOrigin =
+    !corsOriginsRaw || corsOriginsRaw === '*'
+      ? '*'
+      : corsOriginsRaw
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean);
+
   app.use(helmet());
   app.use(
     cors({
-      origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+      origin: corsOrigin,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       allowedHeaders: '*',
       credentials: false,

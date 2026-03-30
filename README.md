@@ -203,6 +203,45 @@ Trình duyệt thường: **http://localhost:5173** (Vite).
 | `VITE_API_BASE_URL` | Base URL **đã gồm** suffix `/api/v1` |
 
 ---
+## 🚀 Deploy Docker lên Render
+
+Repo này có sẵn:
+- `workshift-backend/Dockerfile` (build TypeScript -> `dist/`, chạy `npm start`)
+- `workshift-frontend/Dockerfile` (build React/Vite -> `dist/`, serve bằng Nginx)
+- `.github/workflows/deploy.yml` (build & push Docker image lên Docker Hub, sau đó kích hoạt Render qua webhook nếu bạn cấu hình)
+
+### 1. Tạo Docker Hub repos
+- Tạo ít nhất 2 repo: `workshift-backend` và `workshift-frontend` (tag sử dụng: `latest`).
+
+### 2. Tạo Render Web Service (2 service)
+#### Backend
+- Runtime: Docker
+- Image: `<DOCKERHUB_USERNAME>/workshift-backend:latest`
+- Env (bắt buộc):
+  - `PORT` = `8080`
+  - `MONGODB_URI`
+  - `JWT_SECRET`
+  - `JWT_REFRESH_SECRET`
+- Env (khuyến nghị):
+  - `CORS_ORIGINS="https://<frontend-domain>"` (hoặc `CORS_ORIGINS="*"` để mở rộng nhanh)
+- Health: `GET /api/health`
+
+#### Frontend
+- Runtime: Docker
+- Image: `<DOCKERHUB_USERNAME>/workshift-frontend:latest`
+- Không cần env runtime (frontend đã được build sẵn base API).
+
+### 3. Cấu hình GitHub Secrets cho workflow
+- `DOCKERHUB_USERNAME`
+- `DOCKERHUB_TOKEN`
+- `VITE_API_BASE_URL` = `<backend-public-url>/api/v1` (không kèm trailing `/`)
+- `RENDER_BACKEND_HOOK_URL` (optional) + `RENDER_FRONTEND_HOOK_URL` (optional)
+  - Nếu có, workflow sẽ `POST {}` để Render rebuild service sau khi push image.
+
+### 4. Deploy
+- `git push` vào `main` hoặc `develop` để workflow chạy.
+
+---
 
 ## 🔌 API (ví dụ)
 
