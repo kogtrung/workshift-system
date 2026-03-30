@@ -66,18 +66,23 @@ jobs:
             ${{ env.IMAGE_FRONTEND }}:${{ env.IMAGE_TAG }}
 
       - name: Trigger Render backend rebuild (optional)
-        if: ${{ secrets.RENDER_BACKEND_HOOK_URL != '' }}
         run: |
-          curl -fsSL -X POST \
-            -H "Content-Type: application/json" \
-            '${{ secrets.RENDER_BACKEND_HOOK_URL }}' \
-            -d '{}' || true
+          if [ -n '${{ secrets.RENDER_BACKEND_HOOK_URL }}' ]; then
+            curl -fsSL -X POST \
+              -H "Content-Type: application/json" \
+              '${{ secrets.RENDER_BACKEND_HOOK_URL }}' \
+              -d '{}' || true
+          else
+            echo "RENDER_BACKEND_HOOK_URL is not set; skipping"
+          fi
 
       - name: Trigger Render frontend rebuild (optional)
-        if: ${{ secrets.RENDER_FRONTEND_HOOK_URL != '' }}
         run: |
-          curl -fsSL -X POST \
-            -H "Content-Type: application/json" \
-            '${{ secrets.RENDER_FRONTEND_HOOK_URL }}' \
-            -d '{}' || true
-
+          if [ -n '${{ secrets.RENDER_FRONTEND_HOOK_URL }}' ]; then
+            curl -fsSL -X POST \
+              -H "Content-Type: application/json" \
+              '${{ secrets.RENDER_FRONTEND_HOOK_URL }}' \
+              -d '{}' || true
+          else
+            echo "RENDER_FRONTEND_HOOK_URL is not set; skipping"
+          fi
