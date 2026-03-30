@@ -14,8 +14,8 @@ jobs:
 
     env:
       IMAGE_TAG: latest
-      IMAGE_BACKEND: ${{ secrets.DOCKERHUB_USERNAME }}/workshift-backend
-      IMAGE_FRONTEND: ${{ secrets.DOCKERHUB_USERNAME }}/workshift-frontend
+      IMAGE_BACKEND: ${{ secrets.DOCKERHUB_USERNAME }}/workshift-backend-node
+      IMAGE_FRONTEND: ${{ secrets.DOCKERHUB_USERNAME }}/workshift-frontend-node
 
     steps:
       - name: Checkout
