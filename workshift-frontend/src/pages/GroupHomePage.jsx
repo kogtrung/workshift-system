@@ -1,9 +1,9 @@
 import { useState, useEffect, useMemo } from 'react'
-import { useParams, useOutletContext, useNavigate } from 'react-router-dom'
+import { useParams, useOutletContext } from 'react-router-dom'
 import { useAuth } from '../features/auth/AuthContext'
-import { leaveGroup } from '../features/groups/groupApi'
 import { getShifts } from '../features/shifts/shiftApi'
 import { getSalaryConfigs } from '../features/salary/salaryApi'
+import { getPayroll } from '../features/payroll/payrollApi'
 import { getPositions } from '../features/positions/positionApi'
 import { getUnderstaffedAlerts } from '../features/alerts/alertApi'
 import { formatLocalISODate } from '../utils/dateUtils'
@@ -84,8 +84,8 @@ export function GroupHomePage() {
   const { groupId } = useParams()
   const { groupInfo, isManager } = useOutletContext() || {}
   const { user } = useAuth()
-  const navigate = useNavigate()
-  const [leaving, setLeaving] = useState(false)
+  const [metricRange, setMetricRange] = useState('week') // 'week' | 'month'
+  const [monthlyPayroll, setMonthlyPayroll] = useState(null)
 
   // Calendar State
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date()))
@@ -114,9 +114,16 @@ export function GroupHomePage() {
           const salRes = await getSalaryConfigs(groupId)
           setSalaries(Array.isArray(salRes) ? salRes : (salRes?.data ?? []))
         } catch (e) {
-          // Có thể staff không có quyền xem salary configs; vẫn cho phép load trang.
-          console.warn('Salary config fetch failed', e)
+          // Staff có thể không có quyền đọc salary config.
           setSalaries([])
+        }
+
+        try {
+          const now = new Date()
+          const pr = await getPayroll(groupId, now.getMonth() + 1, now.getFullYear())
+          setMonthlyPayroll(pr?.data ?? pr ?? null)
+        } catch {
+          setMonthlyPayroll(null)
         }
 
         if (isManager) {
@@ -190,7 +197,7 @@ export function GroupHomePage() {
     return positions.filter(p => myPosIds.has(p.id))
   }, [positions, shifts, isManager, user])
 
-  const metrics = useMemo(() => {
+  const weekMetrics = useMemo(() => {
     let totalHours = 0
     let totalSalary = 0
     let hasSalaryRate = false
@@ -257,18 +264,24 @@ export function GroupHomePage() {
     }
   }, [shifts, salaries, isManager, user, positions])
 
-  async function handleLeave() {
-    if (!confirm('Bạn có chắc chắn muốn rời group này?')) return
-    setLeaving(true)
-    try {
-      await leaveGroup(groupId)
-      navigate('/app/groups', { replace: true })
-    } catch (err) {
-      alert(err?.message || 'Không thể rời group')
-    } finally {
-      setLeaving(false)
+  const monthlyMetrics = useMemo(() => {
+    const items = Array.isArray(monthlyPayroll?.items) ? monthlyPayroll.items : []
+    if (isManager) {
+      return {
+        totalShifts: items.reduce((s, it) => s + Number(it.shiftsWorked ?? 0), 0),
+        totalHours: items.reduce((s, it) => s + Number(it.totalHours ?? 0), 0).toFixed(1),
+        totalSalary: items.reduce((s, it) => s + Number(it.estimatedPay ?? 0), 0),
+      }
     }
-  }
+    const mine = items.find((it) => String(it.userId) === String(user?.id))
+    return {
+      totalShifts: Number(mine?.shiftsWorked ?? 0),
+      totalHours: Number(mine?.totalHours ?? 0).toFixed(1),
+      totalSalary: Number(mine?.estimatedPay ?? 0),
+    }
+  }, [monthlyPayroll, isManager, user])
+
+  const metrics = metricRange === 'month' ? monthlyMetrics : weekMetrics
 
   // Staff chỉ xem lịch cá nhân của mình; Manager xem toàn bộ ca của nhóm.
   return (
@@ -279,23 +292,33 @@ export function GroupHomePage() {
           <p className="text-xs font-bold tracking-[0.05em] uppercase text-on-surface-variant opacity-70">
             {isManager ? 'Bảng điều khiển quản lý' : 'Bảng điều khiển nhân viên'}
           </p>
-          <h2 className="text-2xl font-extrabold text-on-surface tracking-tight">
-            Tổng quan Tuần
-          </h2>
+          <h2 className="text-2xl font-extrabold text-on-surface tracking-tight">Tổng quan</h2>
           <p className="text-sm text-on-surface-variant font-medium">Lịch làm việc và thống kê {isManager ? 'nhóm' : 'cá nhân'} của tuần hiện tại.</p>
         </div>
-
-        {/* Leave group button for Staff */}
-        {!isManager && groupInfo && (
+        <div className="flex items-center gap-2 bg-surface-container rounded-xl p-1 border border-outline/10">
           <button
-            onClick={handleLeave}
-            disabled={leaving}
-            className="px-4 py-2 bg-surface-container-lowest text-error font-semibold rounded-lg border border-error/20 hover:bg-error/5 transition-colors flex items-center gap-2 self-start"
+            type="button"
+            onClick={() => setMetricRange('week')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+              metricRange === 'week'
+                ? 'bg-primary text-on-primary'
+                : 'text-on-surface-variant hover:bg-surface-container-high'
+            }`}
           >
-            <span className="material-symbols-outlined text-sm">logout</span>
-            <span className="text-sm">{leaving ? 'Đang rời...' : 'Rời group'}</span>
+            Tuần
           </button>
-        )}
+          <button
+            type="button"
+            onClick={() => setMetricRange('month')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+              metricRange === 'month'
+                ? 'bg-primary text-on-primary'
+                : 'text-on-surface-variant hover:bg-surface-container-high'
+            }`}
+          >
+            Tháng
+          </button>
+        </div>
       </div>
 
       {/* Weekly Stats Cards */}
