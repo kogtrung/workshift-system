@@ -42,6 +42,7 @@ function normalizePerformanceResponse(res) {
   const raw = res?.data ?? res
 
   const entriesCandidate =
+    raw?.byUser ??
     raw?.entries ??
     raw?.results ??
     raw?.members ??
@@ -50,6 +51,7 @@ function normalizePerformanceResponse(res) {
 
   if (Array.isArray(entriesCandidate)) return { entries: entriesCandidate }
 
+  if (Array.isArray(raw?.byUser)) return { entries: raw.byUser }
   if (Array.isArray(raw?.members)) return { entries: raw.members }
   if (Array.isArray(raw?.entries)) return { entries: raw.entries }
 
@@ -98,7 +100,7 @@ export function PerformancePage() {
   const { entries } = useMemo(() => normalizePerformanceResponse(report), [report])
 
   const totals = useMemo(() => {
-    const totalShifts = entries.reduce((s, e) => s + Number(e.totalShifts ?? e.totalShiftCount ?? e.shifts ?? 0), 0)
+    const totalShifts = entries.reduce((s, e) => s + Number(e.shiftsWorked ?? e.totalShifts ?? e.totalShiftCount ?? e.shifts ?? 0), 0)
     const totalHours = entries.reduce((s, e) => s + Number(e.totalHours ?? e.totalHoursWorked ?? e.hours ?? 0), 0)
     return { totalShifts, totalHours }
   }, [entries])
@@ -286,7 +288,7 @@ export function PerformancePage() {
                       .map((e, idx) => {
                         const name = e.fullName || e.userFullName || e.name || `NV #${e.userId ?? e.id ?? '—'}`
                         const hours = Number(e.totalHours ?? e.totalHoursWorked ?? e.hours ?? 0)
-                        const shifts = Number(e.totalShifts ?? e.totalShiftCount ?? e.shifts ?? 0)
+                        const shifts = Number(e.shiftsWorked ?? e.totalShifts ?? e.totalShiftCount ?? e.shifts ?? 0)
                         const positionName = e.positionName || e.position?.name || e.posName || ''
                         return (
                           <tr key={e.userId ?? e.id ?? name} className="hover:bg-surface-container/20 transition-colors">

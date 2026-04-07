@@ -568,14 +568,14 @@ export function ShiftsPage() {
                         )}
 
                         {/* Staff register button */}
-                        {(!isManager && shift.status === 'OPEN' && myRegStatusByShiftId[shift.id] === 'PENDING') && (
+                        {(!isManager && myRegStatusByShiftId[shift.id] === 'PENDING') && (
                           <div className="w-full mt-1.5 py-1.5 text-[10px] font-bold text-amber-800 bg-amber-50 border border-amber-200 rounded-lg text-center">
-                            Đã đăng ký — chờ duyệt
+                            Đã đăng kí ca này
                           </div>
                         )}
-                        {(!isManager && shift.status === 'OPEN' && myRegStatusByShiftId[shift.id] === 'APPROVED') && (
+                        {(!isManager && myRegStatusByShiftId[shift.id] === 'APPROVED') && (
                           <div className="w-full mt-1.5 py-1.5 text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-lg text-center">
-                            Đã được duyệt ca này
+                            Đã đăng kí ca này
                           </div>
                         )}
                         {(!isManager && shift.status === 'OPEN' && !myRegStatusByShiftId[shift.id]) && (
