@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useOutletContext, useNavigate } from 'react-router-dom'
-import { updateGroup, deleteGroup, toggleGroupStatus } from '../features/groups/groupApi'
+import { updateGroup, deleteGroup, toggleGroupStatus, leaveGroup } from '../features/groups/groupApi'
 
 export function GroupSettingsPage() {
   const { groupId } = useParams()
@@ -12,6 +12,8 @@ export function GroupSettingsPage() {
   const [saving, setSaving] = useState(false)
   const [saveMsg, setSaveMsg] = useState(null)
   const [saveErr, setSaveErr] = useState(null)
+  const [leaving, setLeaving] = useState(false)
+  const [leaveErr, setLeaveErr] = useState(null)
 
   // close/reopen
   const [toggling, setToggling] = useState(false)
@@ -63,6 +65,17 @@ export function GroupSettingsPage() {
     } finally { setDeleting(false) }
   }
 
+  async function handleLeaveGroup() {
+    if (!confirm('Bạn có chắc chắn muốn rời group này?')) return
+    setLeaving(true); setLeaveErr(null)
+    try {
+      await leaveGroup(groupId)
+      navigate('/app/groups', { replace: true })
+    } catch (err) {
+      setLeaveErr(err?.message || 'Không thể rời group')
+    } finally { setLeaving(false) }
+  }
+
   /* ───── Staff read-only view ───── */
   if (!isManager) {
     return (
@@ -97,6 +110,18 @@ export function GroupSettingsPage() {
                 <span className="material-symbols-outlined text-lg">content_copy</span>
               </button>
             </div>
+          </div>
+          <div className="pt-4 border-t border-outline/10">
+            <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">Nhóm</p>
+            <button
+              onClick={handleLeaveGroup}
+              disabled={leaving}
+              className="px-4 py-2 bg-surface-container-lowest text-error font-semibold rounded-lg border border-error/20 hover:bg-error/5 transition-colors flex items-center gap-2"
+            >
+              <span className="material-symbols-outlined text-sm">logout</span>
+              <span className="text-sm">{leaving ? 'Đang rời...' : 'Rời group'}</span>
+            </button>
+            {leaveErr ? <p className="text-xs text-error mt-2">{leaveErr}</p> : null}
           </div>
         </div>
       </div>

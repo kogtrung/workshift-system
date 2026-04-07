@@ -29,10 +29,12 @@ export function PayrollPage() {
 
   useEffect(() => { loadPayroll() }, [groupId, month, year])
 
-  const entries = payroll?.entries || []
-  const totalShifts = entries.reduce((s, e) => s + (e.totalShifts || 0), 0)
+  const entries = Array.isArray(payroll?.entries)
+    ? payroll.entries
+    : (Array.isArray(payroll?.items) ? payroll.items : [])
+  const totalShifts = entries.reduce((s, e) => s + Number(e.totalShifts ?? e.shiftsWorked ?? 0), 0)
   const totalHours = entries.reduce((s, e) => s + Number(e.totalHours || 0), 0)
-  const totalPay = entries.reduce((s, e) => s + Number(e.totalPay || 0), 0)
+  const totalPay = entries.reduce((s, e) => s + Number(e.totalPay ?? e.estimatedPay ?? 0), 0)
 
   function prevMonth() {
     if (month === 1) { setMonth(12); setYear(y => y - 1) }
@@ -133,11 +135,13 @@ export function PayrollPage() {
                         <span className="font-bold text-on-surface">{entry.fullName || `NV #${entry.userId}`}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-4 text-center font-bold text-on-surface">{entry.totalShifts}</td>
+                    <td className="px-4 py-4 text-center font-bold text-on-surface">{Number(entry.totalShifts ?? entry.shiftsWorked ?? 0)}</td>
                     <td className="px-4 py-4 text-center font-medium text-on-surface">{Number(entry.totalHours).toFixed(1)}h</td>
-                    <td className="px-4 py-4 text-right text-on-surface-variant font-medium">{fmtCurrency(entry.hourlyRate)}</td>
+                    <td className="px-4 py-4 text-right text-on-surface-variant font-medium">
+                      {entry.hourlyRate != null ? fmtCurrency(entry.hourlyRate) : '—'}
+                    </td>
                     <td className="px-6 py-4 text-right">
-                      <span className="font-black text-emerald-600">{fmtCurrency(entry.totalPay)}</span>
+                      <span className="font-black text-emerald-600">{fmtCurrency(entry.totalPay ?? entry.estimatedPay ?? 0)}</span>
                     </td>
                   </tr>
                 ))}

@@ -1,9 +1,10 @@
 import { AppError } from '../common/appError';
 import { Group } from '../models/Group';
+import { GroupMember } from '../models/GroupMember';
 import { Registration } from '../models/Registration';
 import { Shift } from '../models/Shift';
 import { User } from '../models/User';
-import { assertManager } from './membership';
+import { assertMemberApproved } from './membership';
 import { resolveHourlyRate } from './salaryConfigService';
 import { shiftDurationHours } from '../utils/time';
 import { vnMonthIsoRangeContaining } from '../utils/vnTime';
@@ -23,7 +24,14 @@ export const payrollService = {
     if (!user) throw new AppError(401, 'Không tìm thấy người dùng đăng nhập');
     const g = await Group.findOne({ id: groupId });
     if (!g) throw new AppError(404, 'Không tìm thấy nhóm');
-    await assertManager(groupId, user.id, 'Chỉ Quản lý mới xem bảng lương');
+    const membership = await GroupMember.findOne({ groupId, userId: user.id }).lean();
+    if (!membership || membership.status !== 'APPROVED') {
+      throw new AppError(403, 'Bạn không thuộc group này hoặc chưa được duyệt');
+    }
+    const isManager = membership.role === 'MANAGER';
+    if (!isManager) {
+      await assertMemberApproved(groupId, user.id);
+    }
 
     const padMonth = `${year}-${String(month).padStart(2, '0')}-01`;
     const { from, to } = vnMonthIsoRangeContaining(padMonth);
@@ -81,7 +89,7 @@ export const payrollService = {
     const users = await User.find({ id: { $in: userIds } }).lean();
     const umap = new Map(users.map((u) => [u.id, u]));
 
-    const items = userIds.map((uid) => {
+    let items = userIds.map((uid) => {
       const u = umap.get(uid);
       const lines = byUser.get(uid)!.lines;
       const totalHours = Math.round(lines.reduce((s, l) => s + l.hours, 0) * 100) / 100;
@@ -97,6 +105,10 @@ export const payrollService = {
         lines,
       };
     });
+
+    if (!isManager) {
+      items = items.filter((it) => it.userId === user.id);
+    }
 
     items.sort((a, b) => a.username.localeCompare(b.username));
 
