@@ -104,6 +104,6 @@ dist
 # Dist folder
 dist
 
-# --- Chỉ local (không push): Cursor, tài liệu nội bộ, mã Java tham chiếu khi port sang Node ---
+# --- Chỉ local (không push): Cursor và tài liệu nội bộ ---
 .cursor/
 docs/internal/

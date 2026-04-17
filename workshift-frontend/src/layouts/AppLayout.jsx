@@ -1,8 +1,8 @@
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { useAuth } from '../features/auth/AuthContext'
-import { logout } from '../features/auth/authApi'
-import { getMyGroups } from '../features/groups/groupApi'
+import { useAuth } from '../states/auth/AuthContext'
+import { logout } from '../services/auth/authApi'
+import { getMyGroups } from '../services/groups/groupApi'
 import { unwrapApiArray } from '../api/apiClient'
 
 export function AppLayout() {

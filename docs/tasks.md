@@ -11,8 +11,7 @@
 | Backend | `workshift-backend/` | Express + TypeScript + MongoDB. Hợp đồng REST: envelope JSON trong mã (`apiResponse` / `errorResponse`) và **README**; roadmap nghiệp vụ: **mục I–VII** trong file này. *(Bảng route mở rộng có thể giữ local trong `.cursor/rules/` — không bắt buộc trên Git.)* |
 | Đặc tả | `docs/spec.md` | Nghiệp vụ B01–B26; mô hình dữ liệu tham chiếu. |
 
-Roadmap phía dưới là **hạng mục nghiệp vụ theo nhóm**; triển khai backend bám **mục I** và hợp đồng API trong mã.  
-*(Nếu có clone **Spring** local trong `workshift-backend-j/` — không trên Git — có thể đối chiếu khi port; dev thuần Node không bắt buộc.)*
+Roadmap phía dưới là **hạng mục nghiệp vụ theo nhóm**; triển khai backend bám **mục I** và hợp đồng API trong mã.
 
 ---
 
@@ -320,7 +319,7 @@ Sử dụng format: `<type>(<scope>): <description>`
 ### 5. Checklist Pre-commit & Pre-push
 Trước khi push code, hãy tự kiểm tra:
 - [ ] Code đã được format (VSCode / IDE tương đương).
-- [ ] Không còn biến thừa, log thừa (`System.out.println`, `console.log`).
+- [ ] Không còn biến thừa, log thừa (`console.log`).
 - [ ] Đã chạy thử ứng dụng và không bị crash.
 - [ ] Đã chạy Unit Test liên quan (nếu có).
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useOutletContext } from 'react-router-dom'
-import { getPayroll } from '../features/payroll/payrollApi'
+import { getPayroll } from '../services/payroll/payrollApi'
 
 function fmtCurrency(val) {
   return Number(val).toLocaleString('vi-VN') + 'đ'

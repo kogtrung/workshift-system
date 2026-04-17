@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams, useOutletContext } from 'react-router-dom'
 import { unwrapApiResponse } from '../api/apiClient'
-import { getPendingMembers, reviewMember } from '../features/groups/groupApi'
+import { getPendingMembers, reviewMember } from '../services/groups/groupApi'
 
 export function PendingMembersPage() {
   const { groupId } = useParams()

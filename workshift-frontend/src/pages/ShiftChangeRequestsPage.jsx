@@ -4,7 +4,7 @@ import {
   approveShiftChangeRequest,
   listPendingShiftChangeRequests,
   rejectShiftChangeRequest,
-} from "../features/shiftChange/shiftChangeApi"
+} from '../services/shiftChange/shiftChangeApi'
 import { unwrapApiArray } from "../api/apiClient"
 import { weekdayLabelViFromIsoDate } from "../utils/dateUtils"
 

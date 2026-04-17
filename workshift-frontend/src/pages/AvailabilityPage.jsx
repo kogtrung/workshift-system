@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { unwrapApiArray } from '../api/apiClient'
-import { getMyAvailability, updateMyAvailability } from '../features/availability/availabilityApi'
+import { getMyAvailability, updateMyAvailability } from '../services/availability/availabilityApi'
 
 /** ISO-8601 giống backend: 1 = Thứ 2 … 7 = Chủ nhật */
 const DAYS = [

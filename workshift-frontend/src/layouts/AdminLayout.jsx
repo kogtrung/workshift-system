@@ -1,6 +1,6 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom"
-import { useAuth } from "../features/auth/AuthContext"
-import { logout } from "../features/auth/authApi"
+import { useAuth } from '../states/auth/AuthContext'
+import { logout } from '../services/auth/authApi'
 import { useMemo } from "react"
 
 const ADMIN_NAV = [

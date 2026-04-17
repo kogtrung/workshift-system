@@ -1,31 +1,26 @@
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import { useParams, useOutletContext } from 'react-router-dom'
-import { getTemplates } from '../features/shifts/shiftTemplateApi'
-import { getShifts, createShift, createShiftsBulk, deleteShift } from '../features/shifts/shiftApi'
-import { getPositions } from '../features/positions/positionApi'
-import { getRequirements, createRequirement, deleteRequirement } from '../features/shifts/shiftRequirementApi'
-import { registerShift, getPendingRegistrations, approveRegistration, rejectRegistration, assignShift } from '../features/registrations/registrationApi'
-import { getMyPositions } from '../features/memberPosition/memberPositionApi'
-import { getGroupMembers } from '../features/groups/groupApi'
-import { ShiftLockModal } from '../features/shifts/components/ShiftLockModal'
-import { ShiftRecommendationsModal } from '../features/shifts/components/ShiftRecommendationsModal'
-import { formatLocalISODate } from '../utils/dateUtils'
+import { getTemplates } from '../services/shifts/shiftTemplateApi'
+import { getShifts, createShift, createShiftsBulk, deleteShift } from '../services/shifts/shiftApi'
+import { getPositions } from '../services/positions/positionApi'
+import { getRequirements, createRequirement, deleteRequirement } from '../services/shifts/shiftRequirementApi'
+import { registerShift, getPendingRegistrations, approveRegistration, rejectRegistration, assignShift } from '../services/registrations/registrationApi'
+import { getMyPositions } from '../services/memberPosition/memberPositionApi'
+import { getGroupMembers } from '../services/groups/groupApi'
+import { ShiftLockModal } from '../components/shifts/ShiftLockModal'
+import { ShiftRecommendationsModal } from '../components/shifts/ShiftRecommendationsModal'
+import { ShiftRegistrationModal } from '../components/shifts/ShiftRegistrationModal'
+import { ShiftsSummaryCards } from '../components/shifts/ShiftsSummaryCards'
 import { unwrapApiArray, unwrapApiResponse } from '../api/apiClient'
-import { getMyCalendar } from '../features/calendar/calendarApi'
+import { getMyCalendar } from '../services/calendar/calendarApi'
+import { useWeekRange } from '../hooks/common/useWeekRange'
+import { WeekNavigator } from '../components/common/WeekNavigator'
+import { ShiftsHeader } from '../components/shifts/ShiftsHeader'
 
 /* ───── date helpers ───── */
-function startOfWeek(d) {
-  const dt = new Date(d)
-  const day = dt.getDay()
-  const diff = day === 0 ? -6 : 1 - day
-  dt.setDate(dt.getDate() + diff)
-  dt.setHours(0, 0, 0, 0)
-  return dt
-}
 function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r }
-function fmtISO(d) { return formatLocalISODate(d) }
 function fmtTime(t) { return t ? String(t).substring(0, 5) : '—' }
-function isToday(d) { return fmtISO(d) === fmtISO(new Date()) }
+function isToday(d, toISO) { return toISO(d) === toISO(new Date()) }
 
 const DAY_LABELS = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'CN']
 const MONTH_NAMES = ['Th01', 'Th02', 'Th03', 'Th04', 'Th05', 'Th06', 'Th07', 'Th08', 'Th09', 'Th10', 'Th11', 'Th12']
@@ -40,7 +35,7 @@ export function ShiftsPage() {
   const { groupId } = useParams()
   const { isManager } = useOutletContext() || {}
 
-  const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date()))
+  const { weekStart, weekEnd, weekDays, goPrevWeek, goNextWeek, goCurrentWeek, toISO } = useWeekRange(new Date())
   const [shifts, setShifts] = useState([])
   const [templates, setTemplates] = useState([])
   const [positions, setPositions] = useState([])
@@ -118,16 +113,14 @@ export function ShiftsPage() {
     finally { setLoadingMyPos(false) }
   }
 
-  const weekEnd = useMemo(() => addDays(weekStart, 6), [weekStart])
-  const weekDays = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)), [weekStart])
 
   const refreshMyRegStatus = useCallback(async () => {
     if (isManager) {
       setMyRegStatusByShiftId({})
       return
     }
-    const from = fmtISO(weekStart)
-    const to = fmtISO(weekEnd)
+    const from = toISO(weekStart)
+    const to = toISO(weekEnd)
     try {
       const res = await getMyCalendar({ from, to })
       const u = unwrapApiResponse(res)
@@ -163,8 +156,8 @@ export function ShiftsPage() {
     setLoading(true)
     setError(null)
     try {
-      const from = fmtISO(weekStart)
-      const to = fmtISO(weekEnd)
+      const from = toISO(weekStart)
+      const to = toISO(weekEnd)
       const [sRes, tRes, pRes] = await Promise.all([
         getShifts(groupId, from, to),
         getTemplates(groupId),
@@ -213,7 +206,7 @@ export function ShiftsPage() {
 
   const shiftsByDate = useMemo(() => {
     const map = {}
-    weekDays.forEach(d => { map[fmtISO(d)] = [] })
+    weekDays.forEach(d => { map[toISO(d)] = [] })
     shifts.forEach(s => {
       const key = s.date
       if (map[key]) map[key].push(s)
@@ -221,10 +214,6 @@ export function ShiftsPage() {
     })
     return map
   }, [shifts, weekDays])
-
-  function prevWeek() { setWeekStart(addDays(weekStart, -7)) }
-  function nextWeek() { setWeekStart(addDays(weekStart, 7)) }
-  function goToday() { setWeekStart(startOfWeek(new Date())) }
 
   /* ───── create shift ───── */
   function openCreateForDate(dateStr) {
@@ -395,41 +384,15 @@ export function ShiftsPage() {
   return (
     <div className="w-full space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div className="space-y-1">
-          <p className="text-xs font-bold tracking-[0.05em] uppercase text-on-surface-variant opacity-70">Quản lý</p>
-          <h2 className="text-3xl font-extrabold text-on-surface tracking-tight">Lịch ca làm việc</h2>
-          <p className="text-on-surface-variant font-medium">
-            {isManager ? 'Xem tổng quan ca và nhu cầu nhân sự theo tuần' : 'Xem lịch ca và đăng ký ca làm việc'}
-          </p>
-        </div>
-        {isManager && (
-          <button onClick={() => openCreateForDate(fmtISO(new Date()))}
-            className="px-5 py-2.5 bg-primary text-on-primary font-semibold rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2 self-start shadow-md">
-            <span className="material-symbols-outlined text-sm">add</span>
-            <span>Tạo ca mới</span>
-          </button>
-        )}
-      </div>
+      <ShiftsHeader isManager={isManager} onCreate={() => openCreateForDate(toISO(new Date()))} />
 
       {/* Week navigation */}
-      <div className="flex items-center justify-between bg-surface-container-lowest rounded-2xl border border-outline/10 px-5 py-3 shadow-sm">
-        <button onClick={prevWeek} className="p-2 hover:bg-surface-container-high rounded-lg transition-colors">
-          <span className="material-symbols-outlined">chevron_left</span>
-        </button>
-        <div className="flex items-center gap-3">
-          <button onClick={goToday}
-            className="px-3 py-1.5 text-xs font-bold text-primary bg-primary-container/30 rounded-lg hover:bg-primary-container/50 transition-colors">
-            Hôm nay
-          </button>
-          <span className="text-base font-bold text-on-surface">
-            {MONTH_NAMES[weekStart.getMonth()]} {weekStart.getDate()} — {MONTH_NAMES[weekEnd.getMonth()]} {weekEnd.getDate()}, {weekEnd.getFullYear()}
-          </span>
-        </div>
-        <button onClick={nextWeek} className="p-2 hover:bg-surface-container-high rounded-lg transition-colors">
-          <span className="material-symbols-outlined">chevron_right</span>
-        </button>
-      </div>
+      <WeekNavigator
+        label={`${MONTH_NAMES[weekStart.getMonth()]} ${weekStart.getDate()} — ${MONTH_NAMES[weekEnd.getMonth()]} ${weekEnd.getDate()}, ${weekEnd.getFullYear()}`}
+        onPrev={goPrevWeek}
+        onNext={goNextWeek}
+        onToday={goCurrentWeek}
+      />
 
       {loading && <div className="text-center py-12"><p className="text-on-surface-variant animate-pulse">Đang tải...</p></div>}
       {error && <div className="bg-error-container/20 text-on-error-container rounded-xl p-4 text-center">{error}</div>}
@@ -438,9 +401,9 @@ export function ShiftsPage() {
       {!loading && !error && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-3">
           {weekDays.map((day, idx) => {
-            const key = fmtISO(day)
+            const key = toISO(day)
             const dayShifts = shiftsByDate[key] || []
-            const today = isToday(day)
+            const today = isToday(day, toISO)
             return (
               <div key={key}
                 className={`rounded-2xl border transition-all flex flex-col ${
@@ -611,138 +574,22 @@ export function ShiftsPage() {
         </div>
       )}
 
-      {/* Registration Modal */}
-      {regShift && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center modal-overlay" onClick={() => setRegShift(null)}>
-          <div className="bg-surface rounded-2xl shadow-2xl w-full max-w-lg mx-4 animate-[fadeIn_0.2s_ease-out]"
-            onClick={e => e.stopPropagation()}>
-            <div className="px-6 pt-6 pb-4 border-b border-outline/10 flex items-center justify-between">
-              <h3 className="text-xl font-bold text-on-surface flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary">how_to_reg</span>
-                Đăng ký ca làm việc
-              </h3>
-              <button onClick={() => setRegShift(null)} className="p-1.5 text-on-surface-variant hover:bg-surface-container-high rounded-lg">
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            </div>
-            <form onSubmit={handleRegisterSubmit} className="p-6 space-y-5">
-              {/* Shift info */}
-              <div className="bg-primary-container/10 rounded-xl p-4 flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-primary text-xl">calendar_month</span>
-                </div>
-                <div>
-                  <p className="text-base font-bold text-on-surface">{regShift.name || 'Ca'}</p>
-                  <p className="text-xs text-on-surface-variant mt-0.5">
-                    {regShift.date} · {fmtTime(regShift.startTime)} – {fmtTime(regShift.endTime)}
-                  </p>
-                </div>
-              </div>
+      <ShiftRegistrationModal
+        open={!!regShift}
+        shift={regShift}
+        regErr={regErr}
+        regPosId={regPosId}
+        setRegPosId={setRegPosId}
+        regNote={regNote}
+        setRegNote={setRegNote}
+        registering={registering}
+        onClose={() => setRegShift(null)}
+        onSubmit={handleRegisterSubmit}
+        loadingMyPos={loadingMyPos}
+        myPositions={myPositions}
+      />
 
-              {regErr && <div className="bg-error-container/20 text-on-error-container rounded-lg p-3 text-sm">{regErr}</div>}
-
-              {/* Position select — filtered by my positions */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">
-                  Vị trí đăng ký <span className="text-error">*</span>
-                </label>
-                {loadingMyPos ? (
-                  <p className="text-on-surface-variant animate-pulse py-3">Đang tải vị trí...</p>
-                ) : (() => {
-                  const shiftReqs = regShift.requirements || []
-                  /** API my-positions trả { id, name, colorCode } — không có positionId */
-                  const myPosIds = new Set(
-                    myPositions
-                      .map((p) => Number(p.id ?? p.positionId))
-                      .filter((n) => Number.isFinite(n))
-                  )
-                  const availablePositions = shiftReqs.filter((r) => myPosIds.has(Number(r.positionId)))
-
-
-                  if (myPositions.length === 0) {
-                    return (
-                      <div className="bg-amber-50 text-amber-800 rounded-xl p-4 text-sm flex items-center gap-3">
-                        <span className="material-symbols-outlined">warning</span>
-                        <span>Bạn chưa khai báo vị trí nào. Vui lòng vào <strong>Thông tin cá nhân</strong> để cập nhật vị trí trước.</span>
-                      </div>
-                    )
-                  }
-
-                  if (shiftReqs.length === 0) {
-                    return (
-                      <div className="bg-amber-50 text-amber-800 rounded-xl p-4 text-sm flex items-center gap-3">
-                        <span className="material-symbols-outlined">info</span>
-                        <span>Ca này chưa cấu hình nhu cầu nhân sự.</span>
-                      </div>
-                    )
-                  }
-
-                  if (availablePositions.length === 0) {
-                    return (
-                      <div className="bg-amber-50 text-amber-800 rounded-xl p-4 text-sm flex items-center gap-3">
-                        <span className="material-symbols-outlined">block</span>
-                        <span>Ca này không có vị trí nào phù hợp với vị trí bạn đã khai báo.</span>
-                      </div>
-                    )
-                  }
-
-                  return (
-                    <select value={regPosId} onChange={e => setRegPosId(e.target.value)}
-                      className="w-full px-4 py-3 bg-surface-container-lowest rounded-xl border border-outline/20 text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all">
-                      <option value="">— Chọn vị trí —</option>
-                      {availablePositions.map(r => (
-                        <option key={r.positionId} value={r.positionId}>
-                          {r.positionName} (cần {r.quantity} người)
-                        </option>
-                      ))}
-                    </select>
-                  )
-                })()}
-              </div>
-
-              {/* Note */}
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">Ghi chú</label>
-                <textarea value={regNote} onChange={e => setRegNote(e.target.value)} placeholder="Ghi chú cho manager..." rows={2}
-                  className="w-full px-4 py-3 bg-surface-container-lowest rounded-xl border border-outline/20 text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none" />
-              </div>
-
-              <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={() => setRegShift(null)}
-                  className="px-5 py-2.5 text-on-surface-variant font-semibold rounded-lg hover:bg-surface-container-high transition-colors">Hủy</button>
-                <button type="submit" disabled={registering || !regPosId}
-                  className="px-5 py-2.5 bg-primary text-on-primary font-semibold rounded-lg hover:bg-primary/90 transition-colors shadow-md disabled:opacity-50">
-                  {registering ? 'Đang đăng ký...' : 'Đăng ký ca'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Stats row */}
-      {!loading && !error && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-surface-container-lowest rounded-xl border border-outline/10 p-4 text-center">
-            <p className="text-3xl font-black text-on-surface">{shifts.length}</p>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mt-1">Tổng ca</p>
-          </div>
-          <div className="bg-surface-container-lowest rounded-xl border border-outline/10 p-4 text-center">
-            <p className="text-3xl font-black text-emerald-600">{shifts.filter(s => s.status === 'OPEN').length}</p>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mt-1">Đang mở</p>
-          </div>
-          <div className="bg-surface-container-lowest rounded-xl border border-outline/10 p-4 text-center">
-            <p className="text-3xl font-black text-amber-600">{shifts.filter(s => s.status === 'LOCKED').length}</p>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mt-1">Đã khóa</p>
-          </div>
-          <div className="bg-surface-container-lowest rounded-xl border border-outline/10 p-4 text-center">
-            <p className="text-3xl font-black text-on-surface">
-              {shifts.reduce((s, sh) => s + (sh.totalRequired || 0), 0)}
-            </p>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mt-1">Tổng nhu cầu</p>
-          </div>
-        </div>
-      )}
+      {!loading && !error && <ShiftsSummaryCards shifts={shifts} />}
 
       {/* ═══ Details Panel ═══ */}
       {selShift && (
@@ -1035,7 +882,7 @@ export function ShiftsPage() {
               {!selectMultiDays ? (
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">Ngày <span className="text-error">*</span></label>
-                  <input type="date" value={createDate} onChange={e => setCreateDate(e.target.value)} min={fmtISO(new Date())}
+                  <input type="date" value={createDate} onChange={e => setCreateDate(e.target.value)} min={toISO(new Date())}
                     className="w-full px-4 py-3 bg-surface-container-lowest rounded-xl border border-outline/20 text-on-surface focus:border-primary focus:ring-1 focus:ring-primary transition-all" />
                 </div>
               ) : (
@@ -1043,7 +890,7 @@ export function ShiftsPage() {
                   <label className="block text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-2">Chọn ngày trong tuần này <span className="text-error">*</span></label>
                   <div className="grid grid-cols-7 gap-1.5">
                     {weekDays.map((d, i) => {
-                      const dStr = fmtISO(d)
+                      const dStr = toISO(d)
                       const isPast = d < new Date(new Date().setHours(0,0,0,0))
                       const isSel = selectedDays.includes(dStr)
                       return (

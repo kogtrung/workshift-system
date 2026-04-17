@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { unwrapApiResponse } from '../api/apiClient'
-import { joinGroupByCode } from '../features/groups/groupApi'
-import { addRecentGroup } from '../features/groups/groupStorage'
+import { joinGroupByCode } from '../services/groups/groupApi'
+import { addRecentGroup } from '../services/groups/groupStorage'
 
 export function JoinGroupPage() {
   const navigate = useNavigate()

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useOutletContext } from 'react-router-dom'
-import { getPositions, createPosition, updatePosition, deletePosition } from '../features/positions/positionApi'
+import { getPositions, createPosition, updatePosition, deletePosition } from '../services/positions/positionApi'
 import { unwrapApiArray } from '../api/apiClient'
 
 const PRESET_COLORS = [

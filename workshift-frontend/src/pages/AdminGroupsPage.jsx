@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { getAdminGroups, toggleAdminGroupStatus } from "../features/admin/adminApi"
+import { getAdminGroups, toggleAdminGroupStatus } from '../services/admin/adminApi'
 
 export function AdminGroupsPage() {
   const [items, setItems] = useState(null)
