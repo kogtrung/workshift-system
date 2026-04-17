@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
-import { getAdminUsers, toggleAdminUserStatus } from "../features/admin/adminApi"
+import { getAdminUsers, toggleAdminUserStatus } from '../services/admin/adminApi'
 
 export function AdminUsersPage() {
   const [items, setItems] = useState(null)

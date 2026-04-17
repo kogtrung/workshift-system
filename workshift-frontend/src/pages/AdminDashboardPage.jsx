@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { getAdminMetrics } from "../features/admin/adminApi"
+import { getAdminMetrics } from '../services/admin/adminApi'
 
 export function AdminDashboardPage() {
   const [metrics, setMetrics] = useState(null)

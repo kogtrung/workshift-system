@@ -1,4 +1,4 @@
-/** Biên ngày theo múi Asia/Ho_Chi_Minh (+07), tương thích logic Java `atStartOfDay(ZoneId)`. */
+/** Biên ngày theo múi Asia/Ho_Chi_Minh (+07). */
 export function vnStartOfCalendarDay(isoDate: string): Date {
   return new Date(`${isoDate}T00:00:00+07:00`);
 }

@@ -1,4 +1,4 @@
-import { getAccessToken, getAuthTokens, setAuthTokens, clearAuthTokens } from "../features/auth/authStorage";
+import { getAccessToken, getAuthTokens, setAuthTokens, clearAuthTokens } from "../services/auth/authStorage";
 
 const DEFAULT_BASE_URL = "http://localhost:8080/api/v1";
 

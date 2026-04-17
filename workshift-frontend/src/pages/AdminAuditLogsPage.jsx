@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
-import { getAdminAuditLogs } from "../features/admin/adminApi"
+import { getAdminAuditLogs } from '../services/admin/adminApi'
 
 function formatInstant(value) {
   if (!value) return ""

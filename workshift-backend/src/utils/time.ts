@@ -22,7 +22,7 @@ export function shiftDurationHours(startTime: string, endTime: string): number {
   return (timeToSeconds(endTime) - timeToSeconds(startTime)) / 3600;
 }
 
-/** Trùng khung theo query Java: start1 < end2 && end1 > start2 */
+/** Trùng khung thời gian: start1 < end2 && end1 > start2 */
 export function timeRangesOverlap(start1: string, end1: string, start2: string, end2: string): boolean {
   const s1 = timeToSeconds(start1);
   const e1 = timeToSeconds(end1);
@@ -31,7 +31,7 @@ export function timeRangesOverlap(start1: string, end1: string, start2: string, 
   return s1 < e2 && e1 > s2;
 }
 
-/** ISO-8601 Monday=1 … Sunday=7 (giống Java DayOfWeek.getValue) */
+/** ISO-8601 Monday=1 … Sunday=7 */
 export function isoDayOfWeekFromDateString(dateStr: string): number {
   const [y, mo, d] = dateStr.split('-').map(Number);
   const dt = new Date(y, mo - 1, d);

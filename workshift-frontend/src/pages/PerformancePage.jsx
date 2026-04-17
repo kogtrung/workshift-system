@@ -1,16 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams, useOutletContext } from 'react-router-dom'
-import { getPerformance } from '../features/performance/performanceApi'
-
-function fmtNumber(val) {
-  const n = Number(val)
-  return Number.isFinite(n) ? n.toLocaleString('vi-VN') : '—'
-}
-
-function fmtHours(val) {
-  const n = Number(val)
-  return Number.isFinite(n) ? `${n.toFixed(1)}h` : '—'
-}
+import { getPerformance } from '../services/performance/performanceApi'
+import { PerformanceFilters } from '../components/performance/PerformanceFilters'
+import { PerformanceStats } from '../components/performance/PerformanceStats'
+import { PerformanceTopChart } from '../components/performance/PerformanceTopChart'
+import { PerformanceTable } from '../components/performance/PerformanceTable'
 
 function toDateInputValue(d) {
   if (!d || !(d instanceof Date)) return ''
@@ -134,183 +128,25 @@ export function PerformancePage() {
         <p className="text-on-surface-variant font-medium">So sánh số ca và tổng giờ làm theo giai đoạn</p>
       </div>
 
-      <div className="bg-surface-container-lowest rounded-2xl border border-outline/10 px-5 py-4 shadow-sm space-y-4">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setRange('week')}
-              className={`px-4 py-2 rounded-lg font-bold transition-colors border ${
-                range === 'week' ? 'bg-primary text-on-primary border-primary' : 'bg-surface-container text-on-surface-variant border-outline/10 hover:bg-surface-container-high'
-              }`}
-            >
-              Tuần
-            </button>
-            <button
-              type="button"
-              onClick={() => setRange('month')}
-              className={`px-4 py-2 rounded-lg font-bold transition-colors border ${
-                range === 'month' ? 'bg-primary text-on-primary border-primary' : 'bg-surface-container text-on-surface-variant border-outline/10 hover:bg-surface-container-high'
-              }`}
-            >
-              Tháng
-            </button>
-          </div>
-
-          <div className="flex items-center gap-2 text-sm">
-            <span className="text-on-surface-variant font-medium">Từ</span>
-            <input
-              type="date"
-              value={from}
-              onChange={(e) => setFrom(e.target.value)}
-              className="px-3 py-2 bg-surface-container-lowest border border-outline/20 rounded-lg text-on-surface"
-            />
-            <span className="text-on-surface-variant font-medium">Đến</span>
-            <input
-              type="date"
-              value={to}
-              onChange={(e) => setTo(e.target.value)}
-              className="px-3 py-2 bg-surface-container-lowest border border-outline/20 rounded-lg text-on-surface"
-            />
-          </div>
-        </div>
-
-        <div className="flex items-center justify-end">
-          <button
-            type="button"
-            onClick={load}
-            className="px-4 py-2 bg-primary text-on-primary rounded-lg font-bold hover:bg-primary/90 transition-colors flex items-center gap-2"
-            disabled={loading}
-          >
-            <span className="material-symbols-outlined text-sm">{loading ? 'hourglass_empty' : 'refresh'}</span>
-            Lọc dữ liệu
-          </button>
-        </div>
-      </div>
+      <PerformanceFilters
+        range={range}
+        from={from}
+        to={to}
+        loading={loading}
+        onChangeRange={setRange}
+        onChangeFrom={setFrom}
+        onChangeTo={setTo}
+        onReload={load}
+      />
 
       {error && <div className="bg-error-container/20 text-on-error-container rounded-xl p-4 text-center">{error}</div>}
       {loading && <div className="text-center py-12"><p className="text-on-surface-variant animate-pulse">Đang tải...</p></div>}
 
       {!loading && !error && (
         <>
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-surface-container-lowest rounded-xl border border-outline/10 p-4 text-center">
-              <p className="text-3xl font-black text-on-surface">{entries.length}</p>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mt-1">Nhân viên</p>
-            </div>
-            <div className="bg-surface-container-lowest rounded-xl border border-outline/10 p-4 text-center">
-              <p className="text-3xl font-black text-primary">{fmtNumber(totals.totalShifts)}</p>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mt-1">Tổng ca</p>
-            </div>
-            <div className="bg-surface-container-lowest rounded-xl border border-outline/10 p-4 text-center md:col-span-2">
-              <p className="text-3xl font-black text-amber-600">{fmtHours(totals.totalHours)}</p>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mt-1">Tổng giờ</p>
-            </div>
-          </div>
-
-          {/* Simple bar chart (top 5 by total hours) */}
-          {topByHours.length > 0 && (
-            <div className="bg-surface-container-lowest rounded-2xl border border-outline/10 shadow-sm overflow-hidden">
-              <div className="px-6 py-4 bg-surface-container-low border-b border-outline/10">
-                <h4 className="text-base font-bold text-on-surface flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary text-lg">trending_up</span>
-                  Top nhân viên theo tổng giờ
-                </h4>
-                <p className="text-xs text-on-surface-variant mt-1">
-                  Biểu đồ hiển thị đơn giản (CSS) để không phụ thuộc thư viện chart.
-                </p>
-              </div>
-              <div className="p-6 space-y-4">
-                {topByHours.map((e) => {
-                  const hours = Number(e.totalHours ?? e.totalHoursWorked ?? e.hours ?? 0)
-                  const pct = maxHours > 0 ? Math.round((hours / maxHours) * 100) : 0
-                  const name = e.fullName || e.userFullName || e.name || `NV #${e.userId ?? e.id ?? '—'}`
-                  return (
-                    <div key={e.userId ?? e.id ?? name} className="space-y-2">
-                      <div className="flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <span className="w-9 h-9 rounded-xl bg-primary-container flex items-center justify-center text-on-primary-container text-xs font-black">
-                            {(name || 'U').charAt(0).toUpperCase()}
-                          </span>
-                          <span className="font-bold text-on-surface truncate">{name}</span>
-                        </div>
-                        <span className="text-sm font-bold text-on-surface-variant">{fmtHours(hours)}</span>
-                      </div>
-                      <div className="w-full h-3 bg-surface-container rounded-full overflow-hidden">
-                        <div className="h-full rounded-full bg-primary" style={{ width: `${pct}%` }} />
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Table */}
-          <div className="bg-surface-container-lowest rounded-2xl border border-outline/10 shadow-sm overflow-hidden">
-            <div className="px-6 py-4 bg-surface-container-low border-b border-outline/10 flex items-center justify-between gap-3">
-              <h4 className="text-base font-bold text-on-surface flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary text-lg">history</span>
-                Chi tiết theo nhân viên
-              </h4>
-              <span className="text-xs text-on-surface-variant font-medium">
-                range: <span className="font-mono">{range}</span>
-              </span>
-            </div>
-
-            {!entries || entries.length === 0 ? (
-              <div className="text-center py-16">
-                <span className="material-symbols-outlined text-5xl text-on-surface-variant opacity-20 mb-4">insights</span>
-                <h3 className="text-xl font-bold text-on-surface mb-2">Chưa có dữ liệu</h3>
-                <p className="text-on-surface-variant font-medium">
-                  Không có bản ghi hiệu suất trong khoảng bạn chọn.
-                </p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-outline/10 bg-surface-container/30">
-                      <th className="text-left px-6 py-3 font-bold text-[10px] uppercase tracking-widest text-on-surface-variant">#</th>
-                      <th className="text-left px-6 py-3 font-bold text-[10px] uppercase tracking-widest text-on-surface-variant">Nhân viên</th>
-                      <th className="text-center px-4 py-3 font-bold text-[10px] uppercase tracking-widest text-on-surface-variant">Số ca</th>
-                      <th className="text-center px-4 py-3 font-bold text-[10px] uppercase tracking-widest text-on-surface-variant">Tổng giờ</th>
-                      {entries.some((x) => x.positionName || x.position?.name) && (
-                        <th className="text-left px-4 py-3 font-bold text-[10px] uppercase tracking-widest text-on-surface-variant">Vị trí</th>
-                      )}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-outline/5">
-                    {entries
-                      .slice()
-                      .sort((a, b) => Number(b.totalHours ?? b.totalHoursWorked ?? b.hours ?? 0) - Number(a.totalHours ?? a.totalHoursWorked ?? a.hours ?? 0))
-                      .map((e, idx) => {
-                        const name = e.fullName || e.userFullName || e.name || `NV #${e.userId ?? e.id ?? '—'}`
-                        const hours = Number(e.totalHours ?? e.totalHoursWorked ?? e.hours ?? 0)
-                        const shifts = Number(e.shiftsWorked ?? e.totalShifts ?? e.totalShiftCount ?? e.shifts ?? 0)
-                        const positionName = e.positionName || e.position?.name || e.posName || ''
-                        return (
-                          <tr key={e.userId ?? e.id ?? name} className="hover:bg-surface-container/20 transition-colors">
-                            <td className="px-6 py-4 text-on-surface-variant font-medium">{idx + 1}</td>
-                            <td className="px-6 py-4">
-                              <span className="font-bold text-on-surface">{name}</span>
-                            </td>
-                            <td className="px-4 py-4 text-center font-bold text-on-surface">{fmtNumber(shifts)}</td>
-                            <td className="px-4 py-4 text-center font-medium text-on-surface">{fmtHours(hours)}</td>
-                            {entries.some((x) => x.positionName || x.position?.name) && (
-                              <td className="px-4 py-4 text-on-surface-variant font-medium">
-                                {positionName || '—'}
-                              </td>
-                            )}
-                          </tr>
-                        )
-                      })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
+          <PerformanceStats entries={entries} totals={totals} />
+          <PerformanceTopChart topByHours={topByHours} maxHours={maxHours} />
+          <PerformanceTable entries={entries} range={range} />
         </>
       )}
     </div>

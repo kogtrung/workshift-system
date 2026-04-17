@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { unwrapApiResponse } from '../api/apiClient'
-import { register } from '../features/auth/authApi'
+import { register } from '../services/auth/authApi'
 
 export function RegisterPage() {
   const navigate = useNavigate()

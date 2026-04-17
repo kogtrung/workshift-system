@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { unwrapApiResponse } from '../api/apiClient'
-import { login } from '../features/auth/authApi'
-import { useAuth } from '../features/auth/AuthContext'
+import { login } from '../services/auth/authApi'
+import { useAuth } from '../states/auth/AuthContext'
 
 export function LoginPage() {
   const navigate = useNavigate()
