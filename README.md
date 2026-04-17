@@ -102,8 +102,7 @@ Chi tiết mã nghiệp vụ **B01–B26**: xem **`docs/spec.md`** và **`docs/t
 | Backend (triển khai) | `workshift-backend/` | REST `/api/v1`, Express, TypeScript, Mongoose, JWT hai secret, Zod |
 | Frontend | `workshift-frontend/` | SPA, `apiClient` + `features/**/*Api.js` |
 | Tài liệu trên Git | `README.md`, `docs/tasks.md`, `docs/spec.md` | Hướng dẫn, roadmap, đặc tả B01–B26 |
-| Tài liệu / rule chỉ local | `docs/internal/`, `.cursor/rules/` | Kế hoạch Cursor, handoff Java→Node, bảng parity API — **không push** (xem `.gitignore`) |
-| Mã Java tham chiếu (local) | `workshift-backend-j/`, (tuỳ chọn) `workshift-frontend-j/` | Đối chiếu khi port; **không push** |
+| Tài liệu / rule chỉ local | `docs/internal/`, `.cursor/rules/` | Kế hoạch Cursor và tài liệu vận hành nội bộ — **không push** (xem `.gitignore`) |
 
 ---
 
@@ -126,7 +125,7 @@ workshift-system/
 └── README.md
 ```
 
-*(Tuỳ máy dev: `docs/internal/`, `.cursor/`, thư mục Java `*-j/` tham chiếu — **không** có trên remote, xem `.gitignore`.)*
+*(Tuỳ máy dev: `docs/internal/`, `.cursor/` — **không** có trên remote, xem `.gitignore`.)*
 
 ---
 
@@ -292,7 +291,7 @@ Route đang mở: xem thư mục `workshift-backend/src/routes/`. Bảng parity 
 | `docs/tasks.md` | Roadmap theo giai đoạn, phân nhiệm vụ B01–B26 |
 | `docs/spec.md` | Đặc tả nghiệp vụ, mô hình dữ liệu |
 
-**Chỉ trên máy dev** (đã ignore, không push): thư mục **`docs/internal/`** (kế hoạch Cursor, handoff Java→Node, `ui-flows`), **`workshift-backend-j/`** (mã Spring tham chiếu), và **`.cursor/rules/`** (bảng route parity mở rộng). Dùng để Cursor đọc và chuyển đổi dần; khi thay đổi hành vi API cần thống nhất team, cập nhật **`docs/spec.md`** / **`README.md`** / **`docs/tasks.md`** rồi mới push.
+**Chỉ trên máy dev** (đã ignore, không push): thư mục **`docs/internal/`** (kế hoạch Cursor, `ui-flows`) và **`.cursor/rules/`** (bảng route parity mở rộng). Khi thay đổi hành vi API cần thống nhất team, cập nhật **`docs/spec.md`** / **`README.md`** / **`docs/tasks.md`** rồi mới push.
 
 ---
 
