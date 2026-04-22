@@ -6,6 +6,8 @@ import { unwrapApiArray } from '../api/apiClient'
 import { ShiftTemplatesHeader } from '../components/shiftTemplates/ShiftTemplatesHeader'
 import { ShiftTemplatesGrid } from '../components/shiftTemplates/ShiftTemplatesGrid'
 import { ShiftTemplateFormModal } from '../components/shiftTemplates/ShiftTemplateFormModal'
+import { ErrorAlert } from '../components/common/ErrorAlert'
+import { LoadingState } from '../components/common/LoadingState'
 
 export function ShiftTemplatesPage() {
   const { groupId } = useParams()
@@ -127,16 +129,10 @@ export function ShiftTemplatesPage() {
       <ShiftTemplatesHeader isManager={isManager} onCreate={openCreate} />
 
       {/* Loading */}
-      {loading && (
-        <div className="text-center py-12">
-          <p className="text-on-surface-variant animate-pulse">Đang tải...</p>
-        </div>
-      )}
+      {loading && <LoadingState />}
 
       {/* Error */}
-      {error && (
-        <div className="bg-error-container/20 text-on-error-container rounded-xl p-4 text-center">{error}</div>
-      )}
+      <ErrorAlert message={error} />
 
       {!loading && !error && (
         <ShiftTemplatesGrid

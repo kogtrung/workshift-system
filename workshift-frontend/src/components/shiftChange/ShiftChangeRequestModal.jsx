@@ -9,7 +9,7 @@ function fmtTime(t) {
   return String(t).substring(0, 5)
 }
 
-const DAY_SHORT = [, 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN']
+const DAY_SHORT = [null, 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN']
 
 function normalizeDateTimeKey(shiftLike) {
   const date = shiftLike?.date ? String(shiftLike.date) : null

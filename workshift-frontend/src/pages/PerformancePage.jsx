@@ -5,6 +5,8 @@ import { PerformanceFilters } from '../components/performance/PerformanceFilters
 import { PerformanceStats } from '../components/performance/PerformanceStats'
 import { PerformanceTopChart } from '../components/performance/PerformanceTopChart'
 import { PerformanceTable } from '../components/performance/PerformanceTable'
+import { ErrorAlert } from '../components/common/ErrorAlert'
+import { LoadingState } from '../components/common/LoadingState'
 
 function toDateInputValue(d) {
   if (!d || !(d instanceof Date)) return ''
@@ -139,8 +141,8 @@ export function PerformancePage() {
         onReload={load}
       />
 
-      {error && <div className="bg-error-container/20 text-on-error-container rounded-xl p-4 text-center">{error}</div>}
-      {loading && <div className="text-center py-12"><p className="text-on-surface-variant animate-pulse">Đang tải...</p></div>}
+      <ErrorAlert message={error} />
+      {loading && <LoadingState />}
 
       {!loading && !error && (
         <>

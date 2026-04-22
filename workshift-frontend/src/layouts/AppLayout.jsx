@@ -13,16 +13,19 @@ export function AppLayout() {
 
   useEffect(() => {
     let cancelled = false
-    setLoading(true)
-    getMyGroups()
-      .then((res) => {
+    async function fetchData() {
+      setLoading(true)
+      try {
+        const res = await getMyGroups()
         if (!cancelled) setGroups(unwrapApiArray(res))
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error('[AppLayout] Failed to load groups:', err)
         if (!cancelled) setGroups([])
-      })
-      .finally(() => { if (!cancelled) setLoading(false) })
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    fetchData()
     return () => { cancelled = true }
   }, [])
 

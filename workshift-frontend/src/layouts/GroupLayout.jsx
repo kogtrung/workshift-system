@@ -39,19 +39,22 @@ export function GroupLayout() {
 
   useEffect(() => {
     let cancelled = false
-    setLoading(true)
-    getMyGroups()
-      .then((res) => {
+    async function fetchData() {
+      setLoading(true)
+      try {
+        const res = await getMyGroups()
         if (cancelled) return
         const list = unwrapApiArray(res)
         const found = list.find((g) => String(g.groupId) === String(groupId))
         setGroupInfo(found || null)
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error('[GroupLayout] Failed to load groups:', err)
         if (!cancelled) setGroupInfo(null)
-      })
-      .finally(() => { if (!cancelled) setLoading(false) })
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    fetchData()
     return () => { cancelled = true }
   }, [groupId])
 

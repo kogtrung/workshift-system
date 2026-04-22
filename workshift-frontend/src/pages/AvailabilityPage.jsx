@@ -1,8 +1,13 @@
 import { useEffect, useState } from 'react'
 import { unwrapApiArray } from '../api/apiClient'
 import { getMyAvailability, updateMyAvailability } from '../services/availability/availabilityApi'
+import { AvailabilityHeader } from '../components/availability/AvailabilityHeader'
+import { AvailabilityStats } from '../components/availability/AvailabilityStats'
+import { AvailabilityWeekGrid } from '../components/availability/AvailabilityWeekGrid'
+import { LoadingState } from '../components/common/LoadingState'
 
-/** ISO-8601 giống backend: 1 = Thứ 2 … 7 = Chủ nhật */
+function fmtTime(t) { return t ? String(t).substring(0, 5) : '' }
+
 const DAYS = [
   { num: 1, label: 'Thứ 2', short: 'T2' },
   { num: 2, label: 'Thứ 3', short: 'T3' },
@@ -12,8 +17,6 @@ const DAYS = [
   { num: 6, label: 'Thứ 7', short: 'T7' },
   { num: 7, label: 'Chủ nhật', short: 'CN' },
 ]
-
-function fmtTime(t) { return t ? String(t).substring(0, 5) : '' }
 
 function emptySlots() {
   return DAYS.map((d) => ({ dayOfWeek: d.num, slots: [] }))
@@ -115,23 +118,9 @@ export function AvailabilityPage() {
     }
   }
 
-  const totalSlots = availability.reduce((s, d) => s + d.slots.length, 0)
-
   return (
     <div className="w-full space-y-6">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div className="space-y-1">
-          <p className="text-xs font-bold tracking-[0.05em] uppercase text-on-surface-variant opacity-70">Cá nhân</p>
-          <h2 className="text-3xl font-extrabold text-on-surface tracking-tight">Lịch rảnh của tôi</h2>
-          <p className="text-on-surface-variant font-medium">Khai báo khung giờ rảnh hàng tuần để hệ thống gợi ý ca phù hợp</p>
-        </div>
-        <button onClick={handleSave} disabled={saving}
-          className="px-6 py-2.5 bg-primary text-on-primary font-semibold rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2 self-start shadow-md disabled:opacity-50">
-          <span className="material-symbols-outlined text-sm">{saving ? 'hourglass_empty' : 'save'}</span>
-          <span>{saving ? 'Đang lưu...' : 'Lưu thay đổi'}</span>
-        </button>
-      </div>
+      <AvailabilityHeader saving={saving} onSave={handleSave} />
 
       {/* Messages */}
       {success && (
@@ -150,104 +139,16 @@ export function AvailabilityPage() {
         </div>
       )}
 
-      {loading && <div className="text-center py-12"><p className="text-on-surface-variant animate-pulse">Đang tải...</p></div>}
+      {loading && <LoadingState />}
 
-      {/* Stats */}
+      {!loading && <AvailabilityStats availability={availability} />}
       {!loading && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-surface-container-lowest rounded-xl border border-outline/10 p-4 text-center">
-            <p className="text-3xl font-black text-primary">{totalSlots}</p>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mt-1">Khung giờ</p>
-          </div>
-          <div className="bg-surface-container-lowest rounded-xl border border-outline/10 p-4 text-center">
-            <p className="text-3xl font-black text-emerald-600">{availability.filter(d => d.slots.length > 0).length}</p>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mt-1">Ngày có lịch</p>
-          </div>
-          <div className="bg-surface-container-lowest rounded-xl border border-outline/10 p-4 text-center">
-            <p className="text-3xl font-black text-amber-600">{availability.filter(d => d.slots.length === 0).length}</p>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mt-1">Ngày nghỉ</p>
-          </div>
-          <div className="bg-surface-container-lowest rounded-xl border border-outline/10 p-4 text-center">
-            <p className="text-3xl font-black text-on-surface">
-              {(() => {
-                let total = 0
-                availability.forEach(d => d.slots.forEach(s => {
-                  if (s.startTime && s.endTime) {
-                    const [sh, sm] = s.startTime.split(':').map(Number)
-                    const [eh, em] = s.endTime.split(':').map(Number)
-                    total += (eh * 60 + em - sh * 60 - sm) / 60
-                  }
-                }))
-                return total.toFixed(1)
-              })()}h
-            </p>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mt-1">Tổng giờ/tuần</p>
-          </div>
-        </div>
-      )}
-
-      {/* Weekly Grid */}
-      {!loading && (
-        <div className="space-y-3">
-          {availability.map((day, dayIdx) => {
-            const dayInfo = DAYS[dayIdx]
-            const hasSlots = day.slots.length > 0
-            return (
-              <div key={String(day.dayOfWeek)}
-                className={`bg-surface-container-lowest rounded-2xl border transition-all ${hasSlots ? 'border-primary/15 shadow-md' : 'border-outline/10 shadow-sm'}`}>
-                {/* Day Header */}
-                <div className={`px-5 py-4 flex items-center justify-between border-b ${hasSlots ? 'border-primary/10 bg-primary/[0.02]' : 'border-outline/5'}`}>
-                  <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-black ${hasSlots ? 'bg-primary text-on-primary' : 'bg-surface-container text-on-surface-variant'}`}>
-                      {dayInfo.short}
-                    </div>
-                    <div>
-                      <h3 className="text-base font-bold text-on-surface">{dayInfo.label}</h3>
-                      <p className="text-xs text-on-surface-variant">
-                        {day.slots.length > 0 ? `${day.slots.length} khung giờ` : 'Chưa khai báo'}
-                      </p>
-                    </div>
-                  </div>
-                  <button onClick={() => addSlot(dayIdx)}
-                    className="px-3 py-1.5 text-xs font-bold text-primary bg-primary-container/20 hover:bg-primary-container/40 rounded-lg transition-colors flex items-center gap-1">
-                    <span className="material-symbols-outlined text-sm">add</span>
-                    Thêm giờ
-                  </button>
-                </div>
-
-                {/* Slots */}
-                {day.slots.length > 0 && (
-                  <div className="p-4 space-y-2">
-                    {day.slots.map((slot, slotIdx) => (
-                      <div key={slotIdx} className="flex items-center gap-3 bg-surface-container rounded-xl px-4 py-3 group">
-                        <span className="material-symbols-outlined text-primary text-lg">schedule</span>
-                        <input type="time" value={slot.startTime}
-                          onChange={e => updateSlot(dayIdx, slotIdx, 'startTime', e.target.value)}
-                          className="px-3 py-2 bg-surface-container-lowest rounded-lg border border-outline/20 text-on-surface text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all" />
-                        <span className="text-on-surface-variant text-sm font-medium">đến</span>
-                        <input type="time" value={slot.endTime}
-                          onChange={e => updateSlot(dayIdx, slotIdx, 'endTime', e.target.value)}
-                          className="px-3 py-2 bg-surface-container-lowest rounded-lg border border-outline/20 text-on-surface text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all" />
-                        <button onClick={() => removeSlot(dayIdx, slotIdx)}
-                          className="ml-auto p-1.5 text-on-surface-variant hover:text-error hover:bg-error-container/20 rounded-lg opacity-0 group-hover:opacity-100 transition-all"
-                          title="Xóa khung giờ">
-                          <span className="material-symbols-outlined text-lg">close</span>
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Empty hint */}
-                {day.slots.length === 0 && (
-                  <div className="px-5 py-6 text-center">
-                    <p className="text-xs text-on-surface-variant opacity-40 italic">Nhấn "Thêm giờ" để khai báo khung giờ rảnh</p>
-                  </div>
-                )}
-              </div>
-            )
-          })}
-        </div>
+        <AvailabilityWeekGrid
+          availability={availability}
+          onAddSlot={addSlot}
+          onRemoveSlot={removeSlot}
+          onUpdateSlot={updateSlot}
+        />
       )}
     </div>
   )
