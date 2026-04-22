@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react'
-import { useParams, useOutletContext } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { unwrapApiResponse, unwrapApiArray } from '../api/apiClient'
 import { getMyCalendar } from '../services/calendar/calendarApi'
 import { cancelRegistration } from '../services/registrations/registrationApi'
@@ -14,6 +14,8 @@ import { MyScheduleStats } from '../components/mySchedule/MyScheduleStats'
 import { CancelRegistrationModal } from '../components/mySchedule/CancelRegistrationModal'
 import { MyScheduleWeekGrid } from '../components/mySchedule/MyScheduleWeekGrid'
 import { MyScheduleToast } from '../components/mySchedule/MyScheduleToast'
+import { ErrorAlert } from '../components/common/ErrorAlert'
+import { LoadingState } from '../components/common/LoadingState'
 
 /* ───── helpers ───── */
 const MONTH_NAMES = ['Th01', 'Th02', 'Th03', 'Th04', 'Th05', 'Th06', 'Th07', 'Th08', 'Th09', 'Th10', 'Th11', 'Th12']
@@ -21,7 +23,7 @@ const MONTH_NAMES = ['Th01', 'Th02', 'Th03', 'Th04', 'Th05', 'Th06', 'Th07', 'Th
 export function MySchedulePage() {
   const { groupId } = useParams()
 
-  const { weekStart, weekEnd, weekDays, setWeekStart, goPrevWeek, goNextWeek, goCurrentWeek, toISO } = useWeekRange(new Date())
+  const { weekStart, weekEnd, weekDays, goPrevWeek, goNextWeek, goCurrentWeek, toISO } = useWeekRange(new Date())
 
   // Calendar data (B19)
   const [calendarItems, setCalendarItems] = useState([])
@@ -147,8 +149,8 @@ export function MySchedulePage() {
         onToday={goCurrentWeek}
       />
 
-      {error && <div className="bg-error-container/20 text-on-error-container rounded-xl p-4 text-center">{error}</div>}
-      {loading && <div className="text-center py-12"><p className="text-on-surface-variant animate-pulse">Đang tải...</p></div>}
+      <ErrorAlert message={error} />
+      {loading && <LoadingState />}
 
       {/* ═══ My Calendar (B19) ═══ */}
       {!loading && (

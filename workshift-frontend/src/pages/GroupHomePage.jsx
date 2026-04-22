@@ -54,13 +54,13 @@ function getHourlyRateForMember({ salaries, userId, positionId }) {
 
 export function GroupHomePage() {
   const { groupId } = useParams()
-  const { groupInfo, isManager } = useOutletContext() || {}
+  const { isManager } = useOutletContext() || {}
   const { user } = useAuth()
   const [metricRange, setMetricRange] = useState('week') // 'week' | 'month'
   const [monthlyPayroll, setMonthlyPayroll] = useState(null)
 
   // Calendar State
-  const { weekStart, weekEnd, weekDays, setWeekStart, goPrevWeek, goNextWeek, toISO } = useWeekRange(new Date())
+  const { weekStart, weekEnd, weekDays, goPrevWeek, goNextWeek, toISO } = useWeekRange(new Date())
   const [shifts, setShifts] = useState([])
   const [salaries, setSalaries] = useState([])
   const [positions, setPositions] = useState([])
@@ -85,7 +85,7 @@ export function GroupHomePage() {
         try {
           const salRes = await getSalaryConfigs(groupId)
           setSalaries(Array.isArray(salRes) ? salRes : (salRes?.data ?? []))
-        } catch (e) {
+        } catch {
           // Staff có thể không có quyền đọc salary config.
           setSalaries([])
         }
@@ -102,7 +102,7 @@ export function GroupHomePage() {
           try {
             const alertRes = await getUnderstaffedAlerts(groupId)
             setUnderstaffAlerts(Array.isArray(alertRes) ? alertRes : (alertRes?.data ?? []))
-          } catch (e) {
+          } catch {
             setUnderstaffAlerts([])
           }
         } else {

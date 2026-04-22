@@ -14,16 +14,19 @@ export function MembersPage() {
 
   useEffect(() => {
     let cancelled = false
-    setLoading(true)
-    setError(null)
-    getGroupMembers(groupId)
-      .then((res) => {
-        if (!cancelled) {
-          setMembers(unwrapApiArray(res))
-        }
-      })
-      .catch((err) => { if (!cancelled) setError(err?.message || 'Không thể tải danh sách thành viên') })
-      .finally(() => { if (!cancelled) setLoading(false) })
+    async function fetchData() {
+      setLoading(true)
+      setError(null)
+      try {
+        const res = await getGroupMembers(groupId)
+        if (!cancelled) setMembers(unwrapApiArray(res))
+      } catch (err) {
+        if (!cancelled) setError(err?.message || 'Không thể tải danh sách thành viên')
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    fetchData()
     return () => { cancelled = true }
   }, [groupId])
 

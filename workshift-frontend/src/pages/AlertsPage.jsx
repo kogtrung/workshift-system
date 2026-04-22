@@ -5,6 +5,8 @@ import { unwrapApiArray } from '../api/apiClient'
 import { AlertsHeader } from '../components/alerts/AlertsHeader'
 import { AlertsStats } from '../components/alerts/AlertsStats'
 import { AlertsList } from '../components/alerts/AlertsList'
+import { ErrorAlert } from '../components/common/ErrorAlert'
+import { LoadingState } from '../components/common/LoadingState'
 function parseDateOnly(d) {
   // Backend LocalDate -> "YYYY-MM-DD"
   if (!d) return null
@@ -102,12 +104,8 @@ export function AlertsPage() {
     <div className="w-full space-y-6">
       <AlertsHeader weekOffset={weekOffset} loading={loading} onChangeWeekOffset={setWeekOffset} onRefresh={loadAlerts} />
 
-      {error && <div className="bg-error-container/20 text-on-error-container rounded-xl p-4 text-center">{error}</div>}
-      {loading && (
-        <div className="text-center py-12">
-          <p className="text-on-surface-variant animate-pulse">Đang tải cảnh báo...</p>
-        </div>
-      )}
+      <ErrorAlert message={error} />
+      {loading && <LoadingState message="Đang tải cảnh báo..." />}
 
       {!loading && <AlertsStats visibleAlerts={visibleAlerts} totals={totals} />}
       {!loading && <AlertsList groupId={groupId} alerts={visibleAlerts} expanded={expanded} setExpanded={setExpanded} />}
