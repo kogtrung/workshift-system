@@ -106,4 +106,5 @@ dist
 
 # --- Chỉ local (không push): Cursor và tài liệu nội bộ ---
 .cursor/
+.claude/
 docs/internal/
