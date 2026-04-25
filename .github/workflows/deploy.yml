@@ -93,7 +93,7 @@ jobs:
         with:
           context: ./workshift-backend
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/workshift-backend-node:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/shiftalyst-backend:latest
           cache-from: type=gha,scope=backend
           cache-to: type=gha,scope=backend,mode=max
 
