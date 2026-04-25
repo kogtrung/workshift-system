@@ -2,7 +2,7 @@ import type { RequestHandler } from 'express';
 import { apiOk } from '../common/apiResponse';
 import { meCalendarService } from '../services/meCalendarService';
 import type { z } from 'zod';
-import { meCalendarQuerySchema } from '../validation/phaseESchemas';
+import { meCalendarQuerySchema } from '../validation/memberSchemas';
 
 export const getMyCalendar: RequestHandler = async (req, res, next) => {
   try {

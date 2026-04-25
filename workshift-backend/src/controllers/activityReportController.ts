@@ -6,7 +6,7 @@ import type { z } from 'zod';
 import {
   monthlyReportQuerySchema,
   weeklyReportQuerySchema,
-} from '../validation/phaseHSchemas';
+} from '../validation/shiftChangeSchemas';
 
 function parseGroupId(p: string | string[] | undefined): number {
   const s = Array.isArray(p) ? p[0] : p;

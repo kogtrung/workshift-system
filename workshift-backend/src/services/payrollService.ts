@@ -4,7 +4,7 @@ import { GroupMember } from '../models/GroupMember';
 import { Registration } from '../models/Registration';
 import { Shift } from '../models/Shift';
 import { User } from '../models/User';
-import { assertMemberApproved } from './membership';
+import { assertMemberApproved } from './membershipService';
 import { resolveHourlyRate } from './salaryConfigService';
 import { shiftDurationHours } from '../utils/time';
 import { vnMonthIsoRangeContaining } from '../utils/vnTime';

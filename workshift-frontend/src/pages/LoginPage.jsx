@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { unwrapApiResponse } from '../api/apiClient'
 import { login } from '../services/auth/authApi'
-import { useAuth } from '../states/auth/AuthContext'
+import { useAuth } from '../contexts/auth/AuthContext'
 import { LoginForm } from '../components/auth/LoginForm'
 
 export function LoginPage() {

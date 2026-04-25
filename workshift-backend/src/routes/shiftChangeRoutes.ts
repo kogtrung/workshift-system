@@ -11,7 +11,7 @@ import {
   createShiftChangeRequestSchema,
   emptyObjectSchemaH,
   rejectShiftChangeSchema,
-} from '../validation/phaseHSchemas';
+} from '../validation/shiftChangeSchemas';
 
 const router = Router({ mergeParams: true });
 

@@ -3,7 +3,7 @@ import { Group } from '../models/Group';
 import { Registration } from '../models/Registration';
 import { Shift } from '../models/Shift';
 import { User } from '../models/User';
-import { assertManager } from './membership';
+import { assertManager } from './membershipService';
 import { shiftDurationHours } from '../utils/time';
 import { isoWeekDateRange } from '../utils/isoWeek';
 import { vnMonthIsoRangeContaining } from '../utils/vnTime';

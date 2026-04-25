@@ -15,8 +15,8 @@ import {
   createShiftBulkSchema,
   createShiftSchema,
   shiftsListQuerySchema,
-} from '../validation/shiftPhaseSchemas';
-import { shiftRecommendationsQuerySchema } from '../validation/phaseGSchemas';
+} from '../validation/shiftSchemas';
+import { shiftRecommendationsQuerySchema } from '../validation/payrollSchemas';
 
 const router = Router({ mergeParams: true });
 

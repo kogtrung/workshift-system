@@ -5,7 +5,7 @@ import { Position } from '../models/Position';
 import { SalaryConfig } from '../models/SalaryConfig';
 import { User } from '../models/User';
 import { getNextSequence } from './sequenceService';
-import { assertManager } from './membership';
+import { assertManager } from './membershipService';
 
 function toDto(c: {
   id: number;

@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { getMyCalendar } from '../controllers/meController';
 import { requireAuth } from '../middleware/authJwt';
 import { validateQuery } from '../middleware/validateQuery';
-import { meCalendarQuerySchema } from '../validation/phaseESchemas';
+import { meCalendarQuerySchema } from '../validation/memberSchemas';
 
 const router = Router();
 

@@ -5,7 +5,7 @@ import { ShiftTemplate } from '../models/ShiftTemplate';
 import { TemplateRequirement } from '../models/TemplateRequirement';
 import { User } from '../models/User';
 import { getNextSequence } from './sequenceService';
-import { assertManager, assertMemberApproved } from './membership';
+import { assertManager, assertMemberApproved } from './membershipService';
 import { normalizeTimeString, timeToSeconds } from '../utils/time';
 
 type ReqItem = { positionId: number; quantity: number };

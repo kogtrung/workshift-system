@@ -8,7 +8,7 @@ import { ShiftRequirement } from '../models/ShiftRequirement';
 import { Position } from '../models/Position';
 import { User } from '../models/User';
 import { getNextSequence } from './sequenceService';
-import { assertManager, assertMemberApproved } from './membership';
+import { assertManager, assertMemberApproved } from './membershipService';
 import { shiftMatchesMemberAvailability } from './shiftService';
 import { timeRangesOverlap } from '../utils/time';
 

@@ -4,8 +4,8 @@ import { AppError } from '../common/appError';
 import { shiftService } from '../services/shiftService';
 import { recommendationService } from '../services/recommendationService';
 import type { z } from 'zod';
-import { shiftsListQuerySchema } from '../validation/shiftPhaseSchemas';
-import { shiftRecommendationsQuerySchema } from '../validation/phaseGSchemas';
+import { shiftsListQuerySchema } from '../validation/shiftSchemas';
+import { shiftRecommendationsQuerySchema } from '../validation/payrollSchemas';
 
 function parseId(p: string | string[] | undefined): number {
   const s = Array.isArray(p) ? p[0] : p;

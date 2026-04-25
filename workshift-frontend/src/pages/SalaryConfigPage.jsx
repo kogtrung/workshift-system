@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams, useOutletContext } from 'react-router-dom'
-import { getSalaryConfigs, createSalaryConfig, deleteSalaryConfig } from '../services/salary/salaryApi'
+import { getSalaryConfigs, createSalaryConfig, deleteSalaryConfig } from '../services/salaryConfig/salaryApi'
 import { getPositions } from '../services/positions/positionApi'
 import { getGroupMembers } from '../services/groups/groupApi'
 import { formatLocalISODate } from '../utils/dateUtils'

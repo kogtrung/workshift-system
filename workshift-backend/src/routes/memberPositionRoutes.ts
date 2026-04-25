@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { getMyPositions, putMyPositions } from '../controllers/memberPositionController';
 import { requireAuth } from '../middleware/authJwt';
 import { validateBody } from '../middleware/validateBody';
-import { putMyPositionsSchema } from '../validation/phaseESchemas';
+import { putMyPositionsSchema } from '../validation/memberSchemas';
 
 const router = Router({ mergeParams: true });
 

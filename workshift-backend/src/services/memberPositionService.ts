@@ -4,7 +4,7 @@ import { MemberPosition } from '../models/MemberPosition';
 import { Position } from '../models/Position';
 import { User } from '../models/User';
 import { getNextSequence } from './sequenceService';
-import { assertMemberApproved } from './membership';
+import { assertMemberApproved } from './membershipService';
 
 export const memberPositionService = {
   async getMyPositions(username: string, groupId: number) {
