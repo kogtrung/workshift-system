@@ -5,7 +5,7 @@ import { Registration } from '../models/Registration';
 import { Shift } from '../models/Shift';
 import { ShiftRequirement } from '../models/ShiftRequirement';
 import { User } from '../models/User';
-import { assertManager } from './membership';
+import { assertManager } from './membershipService';
 import { vnTodayIsoDate } from '../utils/vnTime';
 
 export const understaffedAlertService = {

@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom'
-import { useAuth } from '../../states/auth/AuthContext'
+import { useAuth } from '../../contexts/auth/AuthContext'
 
 export function RequireAdmin({ children }) {
   const { user } = useAuth()

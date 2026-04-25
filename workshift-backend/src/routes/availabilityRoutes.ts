@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { getAvailability, putAvailability } from '../controllers/availabilityController';
 import { requireAuth } from '../middleware/authJwt';
 import { validateBody } from '../middleware/validateBody';
-import { putAvailabilitySchema } from '../validation/phaseESchemas';
+import { putAvailabilitySchema } from '../validation/memberSchemas';
 
 const router = Router();
 

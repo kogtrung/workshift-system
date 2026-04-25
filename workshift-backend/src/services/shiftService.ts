@@ -9,7 +9,7 @@ import { ShiftTemplate } from '../models/ShiftTemplate';
 import { TemplateRequirement } from '../models/TemplateRequirement';
 import { User } from '../models/User';
 import { getNextSequence } from './sequenceService';
-import { assertGroupMember } from './membership';
+import { assertGroupMember } from './membershipService';
 import { isoDayOfWeekFromDateString, normalizeTimeString, timeRangesOverlap, timeToSeconds } from '../utils/time';
 
 function safeNorm(t: string | undefined): string {

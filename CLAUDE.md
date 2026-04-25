@@ -220,49 +220,57 @@ Các type: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`
 
 ### Session 2026-04-22→25 — G0: Hoàn tất tất cả giai đoạn A–E
 
+**G0-A:** Frontend refactor — cấu trúc mới `components/`, `services/`, `hooks/`, `configs/`, `states/`, lint 0 lỗi.
+**G0-B:** 59 tests / 5 suites (auth, groups, registration, shiftChange, payroll). Key: member phải set availability trước khi đăng ký ca.
+**G0-C:** `ci.yml` (PR gate) + `deploy.yml` (push → Render). Đã xóa `docker.yml` thừa.
+**G0-D:** rate limiter, pino logging, X-Correlation-ID, compound indexes Registration + GroupMember.
+**G0-E:** Admin UX polish, CSV payroll export, `RUNBOOK.md`, `RELEASE_CHECKLIST.md`.
+
+---
+
+### Session 2026-04-25 — CI/CD hoàn thiện + Deploy production
+
 **Đã hoàn thành:**
 
-**G0-A (Frontend refactor):**
-- [x] Cấu trúc mới: `components/`, `services/`, `hooks/`, `configs/`, `states/` — không còn `features/*`
-- [x] Lint 0 lỗi, build sạch
+**CI/CD refinements:**
+- [x] `deploy.yml` tách thành `deploy-backend` (Docker→Render) + `deploy-frontend` (Vercel CLI) → sau đó bỏ `deploy-frontend` vì Vercel tự deploy qua GitHub integration
+- [x] `deploy.yml` fix bug: hook URL dùng env var thay vì single-quote bọc secret (bash check đúng)
+- [x] `ci.yml` + `deploy.yml` thêm `paths-ignore: docs/**, **.md, .claude/**` — commit docs không trigger CI/deploy
+- [x] `docs/RUNBOOK.md` + `docs/RELEASE_CHECKLIST.md` cập nhật: Docker chỉ cho backend, frontend qua Vercel
+- **Secrets GitHub cần:** `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`, `RENDER_BACKEND_HOOK_URL`
+- **Render deploy hook:** lấy tại Render Dashboard → Service → Settings → Deploy Hook
 
-**G0-B (Backend tests — 59 tests / 5 suites):**
-- [x] Jest + ts-jest + mongodb-memory-server + supertest
-- [x] `tests/auth/` — register, login, refresh, logout, RBAC
-- [x] `tests/groups/` — create group, join, approve member
-- [x] `tests/registration/` — đăng ký ca, duyệt, từ chối, quota (12 tests)
-- [x] `tests/shiftChange/` — tạo yêu cầu, duyệt, từ chối, RBAC (11 tests)
-- [x] `tests/payroll/` — salary config, payroll month, RBAC (9 tests)
-- **Key insight:** `shiftMatchesMemberAvailability` trả `false` khi `availabilities` rỗng — member phải `PUT /api/v1/availability` trước khi đăng ký ca
+**Production deploy:**
+- [x] Backend live tại `https://shiftalyst-backend-latest.onrender.com`
+- [x] `GET /api/health` → 200 OK (lỗi 404 ban đầu do gọi sai path `/v1/health` thay vì `/api/health`)
+- [x] MongoDB Atlas connected (ac-ntvde2u cluster)
+- [x] Port: Render inject `PORT=10000`, app đọc `process.env.PORT` đúng
 
-**G0-C (CI/CD):**
-- [x] `.github/workflows/ci.yml` — trigger: PR vào main/develop; jobs: backend (build+test) + frontend (lint+build) song song
-- [x] `.github/workflows/deploy.yml` — trigger: push vào main/develop; jobs: backend-quality + frontend-quality → deploy (Docker build+push + Render webhook)
-- [x] Xóa `docker.yml` (thừa, hợp nhất vào deploy.yml)
-- **Secrets cần cấu hình:** `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`, `VITE_API_BASE_URL`, `RENDER_BACKEND_HOOK_URL`, `RENDER_FRONTEND_HOOK_URL`
+**Git/branch cleanup:**
+- [x] `main` và `develop` có "unrelated histories" do `git filter` xóa commit tổ tiên → fix bằng orphan branch force-push lên main
+- [x] `git reset --hard origin/main` để sync local main sau force-push
+- [x] Tag `v1.0.0` đã push lên remote
 
-**G0-D (Production hardening):**
-- [x] `src/middleware/rateLimiter.ts` — express-rate-limit; login (10/15min), register (5/1h), refresh (20/15min); bypass tự động khi `NODE_ENV=test`
-- [x] `src/config/logger.ts` — pino structured logging, pino-pretty cho dev
-- [x] `src/middleware/correlationId.ts` — X-Correlation-ID per request (randomUUID nếu không có header)
-- [x] `src/app.ts` — tích hợp pino-http, correlationId, bỏ qua health check log
-- [x] `src/middleware/errorHandler.ts` — dùng `logger.error` thay `console.error`
-- [x] `src/models/Registration.ts` — 4 compound indexes
-- [x] `src/models/GroupMember.ts` — 2 compound indexes
-
-**G0-E (Product polish):**
-- [x] `AdminUsersPage.jsx` — StatusBadge, RoleBadge, toggle Khoá/Mở khoá, Enter-key search
-- [x] `AdminAuditLogsPage.jsx` — ActionBadge color, Refresh button, fixed field names
-- [x] `ShiftChangeRequestsPage.jsx` — inline RejectRow (Enter/Esc), thay `prompt()`
-- [x] `PayrollTable.jsx` — CSV export (UTF-8 BOM cho Excel), @username display
-- [x] `docs/RUNBOOK.md` — deployment guide, env setup, rate limits, rollback, MongoDB indexes
-- [x] `docs/RELEASE_CHECKLIST.md` — pre/during/post deploy checklist
+**Source review — vấn đề cần sửa (không urgent):**
+- Backend: `validation/phaseESchemas.ts`, `phaseGSchemas.ts`, `phaseHSchemas.ts` → đổi tên theo domain
+- Backend: `services/membership.ts` → `membershipService.ts`
+- Frontend: `hooks/common/useWeekRange.js` → `hooks/useWeekRange.js` (bỏ nested `common/`)
+- Frontend: `configs/` → `config/` (singular)
+- Frontend: `states/` → `contexts/` (convention chuẩn hơn)
+- Frontend: `services/salary/` → `services/salaryConfig/` (khớp với component folder)
+- Frontend: `services/shifts/shiftTemplateApi.js` → `services/shiftTemplates/shiftTemplateApi.js`
 
 ---
 
 ## Việc cần làm — Session tiếp theo
 
-### G1 — Realtime & Concurrency (tiếp theo trong roadmap)
+### Dọn dẹp nhỏ trước G1
+
+- [ ] Rename `validation/phaseESchemas.ts`, `phaseGSchemas.ts`, `phaseHSchemas.ts` → tên domain
+- [ ] Rename `services/membership.ts` → `membershipService.ts`
+- [ ] Quyết định xóa `docs/shift-management-system.md` (nội dung đã migrate vào MASTER_ROADMAP)
+
+### G1 — Realtime & Concurrency (giai đoạn tiếp theo)
 
 - [ ] P01: Outbox pattern + EventBus (MQ-ready)
 - [ ] P02: WebSocket gateway + JWT room auth
@@ -271,8 +279,3 @@ Các type: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`
 - [ ] P05: Redis cache + backplane
 - [ ] P06: Frontend realtime UI (socket hook, availability UI)
 - [ ] P07: Feature flag, load test, vận hành
-
-### Việc còn tồn đọng nhỏ
-
-- [ ] Quyết định xóa `docs/shift-management-system.md` (nội dung đã migrate vào MASTER_ROADMAP)
-- [ ] Cập nhật `docs/tasks.md` section 1.2 và 2 để phản ánh trạng thái G0 đã hoàn tất

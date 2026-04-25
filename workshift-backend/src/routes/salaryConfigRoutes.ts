@@ -6,7 +6,7 @@ import {
 } from '../controllers/salaryConfigController';
 import { requireAuth } from '../middleware/authJwt';
 import { validateBody } from '../middleware/validateBody';
-import { createSalaryConfigSchema } from '../validation/phaseGSchemas';
+import { createSalaryConfigSchema } from '../validation/payrollSchemas';
 
 const router = Router({ mergeParams: true });
 

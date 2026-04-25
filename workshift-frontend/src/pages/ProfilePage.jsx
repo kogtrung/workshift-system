@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useOutletContext } from 'react-router-dom'
 import { unwrapApiResponse } from '../api/apiClient'
-import { useAuth } from '../states/auth/AuthContext'
+import { useAuth } from '../contexts/auth/AuthContext'
 import { getGroupMembers } from '../services/groups/groupApi'
 import { getMyAvailability } from '../services/availability/availabilityApi'
 import { getMyCalendar } from '../services/calendar/calendarApi'

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { formatLocalISODate } from '../../utils/dateUtils'
+import { formatLocalISODate } from '../utils/dateUtils'
 
 function startOfWeek(date) {
   const dt = new Date(date)

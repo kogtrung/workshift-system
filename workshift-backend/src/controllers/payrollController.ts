@@ -3,7 +3,7 @@ import { apiOk } from '../common/apiResponse';
 import { AppError } from '../common/appError';
 import { payrollService } from '../services/payrollService';
 import type { z } from 'zod';
-import { payrollQuerySchema } from '../validation/phaseGSchemas';
+import { payrollQuerySchema } from '../validation/payrollSchemas';
 
 function parseGroupId(p: string | string[] | undefined): number {
   const s = Array.isArray(p) ? p[0] : p;

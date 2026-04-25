@@ -28,4 +28,3 @@ export async function assertGroupMember(groupId: number, userId: number) {
   }
   return m;
 }
-

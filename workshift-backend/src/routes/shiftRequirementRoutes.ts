@@ -7,7 +7,7 @@ import {
 } from '../controllers/shiftRequirementController';
 import { requireAuth } from '../middleware/authJwt';
 import { validateBody } from '../middleware/validateBody';
-import { upsertShiftRequirementSchema } from '../validation/shiftPhaseSchemas';
+import { upsertShiftRequirementSchema } from '../validation/shiftSchemas';
 
 const router = Router({ mergeParams: true });
 

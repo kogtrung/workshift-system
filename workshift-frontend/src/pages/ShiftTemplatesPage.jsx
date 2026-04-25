@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useOutletContext } from 'react-router-dom'
-import { getTemplates, createTemplate, updateTemplate, deleteTemplate } from '../services/shifts/shiftTemplateApi'
+import { getTemplates, createTemplate, updateTemplate, deleteTemplate } from '../services/shiftTemplates/shiftTemplateApi'
 import { getPositions } from '../services/positions/positionApi'
 import { unwrapApiArray } from '../api/apiClient'
 import { ShiftTemplatesHeader } from '../components/shiftTemplates/ShiftTemplatesHeader'

@@ -4,7 +4,7 @@ import { Shift } from '../models/Shift';
 import { ShiftRequirement } from '../models/ShiftRequirement';
 import { User } from '../models/User';
 import { getNextSequence } from './sequenceService';
-import { assertManager, assertMemberApproved } from './membership';
+import { assertManager, assertMemberApproved } from './membershipService';
 
 function toResponse(
   r: { id: number; shiftId: number; positionId: number; quantity: number },

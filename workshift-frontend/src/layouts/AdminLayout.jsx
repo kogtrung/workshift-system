@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom"
-import { useAuth } from '../states/auth/AuthContext'
+import { useAuth } from '../contexts/auth/AuthContext'
 import { logout } from '../services/auth/authApi'
 import { useMemo } from "react"
 

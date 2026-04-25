@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { getMonthlyReport, getWeeklyReport } from '../controllers/activityReportController';
 import { requireAuth } from '../middleware/authJwt';
 import { validateQuery } from '../middleware/validateQuery';
-import { monthlyReportQuerySchema, weeklyReportQuerySchema } from '../validation/phaseHSchemas';
+import { monthlyReportQuerySchema, weeklyReportQuerySchema } from '../validation/shiftChangeSchemas';
 
 const router = Router({ mergeParams: true });
 
