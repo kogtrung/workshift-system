@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import { AppError } from '../common/appError';
 import { errorResponseOf } from '../common/errorResponse';
+import { logger } from '../config/logger';
 
 export function errorHandler(err: unknown, req: Request, res: Response, _next: NextFunction) {
   if (err instanceof AppError) {
@@ -20,7 +21,7 @@ export function errorHandler(err: unknown, req: Request, res: Response, _next: N
     );
   }
 
-  console.error(err);
+  logger.error({ err, correlationId: req.correlationId, path: req.originalUrl }, 'Unhandled error');
   const msg = err instanceof Error ? err.message : String(err);
   return res
     .status(500)

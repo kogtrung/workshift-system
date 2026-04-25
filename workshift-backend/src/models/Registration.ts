@@ -30,6 +30,13 @@ const registrationSchema = new mongoose.Schema<IRegistration>(
   { id: false, timestamps: true }
 );
 
+// Queries: listPending (shiftId+status), countApproved (shiftId+positionId+status),
+// overlap check (userId+status), duplicate check (shiftId+userId+status)
+registrationSchema.index({ shiftId: 1, status: 1 });
+registrationSchema.index({ shiftId: 1, positionId: 1, status: 1 });
+registrationSchema.index({ userId: 1, status: 1 });
+registrationSchema.index({ shiftId: 1, userId: 1, status: 1 });
+
 registrationSchema.set('toJSON', {
   transform(_doc, ret) {
     const out = { ...ret } as Record<string, unknown>;

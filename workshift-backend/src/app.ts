@@ -1,7 +1,10 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import pinoHttp from 'pino-http';
 import { loadAuthEnv } from './config/env';
+import { logger } from './config/logger';
+import { correlationIdMiddleware } from './middleware/correlationId';
 import authRoutes from './routes/authRoutes';
 import groupRoutes from './routes/groupRoutes';
 import adminRoutes from './routes/adminRoutes';
@@ -40,6 +43,14 @@ export function createApp() {
           .map((s) => s.trim())
           .filter(Boolean);
 
+  app.use(correlationIdMiddleware);
+  app.use(pinoHttp({
+    logger,
+    genReqId: (req) => (req as express.Request).correlationId,
+    // Không log health-check endpoint để tránh noise
+    autoLogging: { ignore: (req) => req.url === '/api/health' },
+    customLogLevel: (_req, res) => res.statusCode >= 500 ? 'error' : res.statusCode >= 400 ? 'warn' : 'info',
+  }));
   app.use(helmet());
   app.use(
     cors({
