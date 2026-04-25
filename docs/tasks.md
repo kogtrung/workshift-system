@@ -31,10 +31,17 @@
 | Payroll/report | B24, B25, B26 | Implemented | Salary config, payroll month, weekly/monthly activity report |
 | System admin | B23 | Implemented | User/group governance, metrics, admin audit |
 
-### 1.3 Việc đang diễn ra
-- Frontend refactor cấu trúc thư mục đã hoàn tất (`features/*` → `components/`, `services/`, `configs/`, `states/`, `hooks/`) — lint 0 lỗi, build sạch (2026-04-22).
-- Giai đoạn A gần xong — còn cần test full flow local (login → group → shift → payroll).
-- Tài liệu đã đồng bộ: `docs/spec.md`, `docs/tasks.md`, `docs/MASTER_ROADMAP.md` (tầm nhìn G0–G4).
+### 1.3 Trạng thái Giai đoạn 0 (G0) — **Hoàn tất** ✅
+
+| Phase | Trạng thái | Tóm tắt |
+|-------|------------|---------|
+| **A** — Frontend refactor | ✅ | Cấu trúc mới, lint 0 lỗi, build sạch |
+| **B** — Backend tests | ✅ | 59 tests / 5 suites (auth, groups, registration, shiftChange, payroll) |
+| **C** — CI/CD | ✅ | `.github/workflows/ci.yml` (build+test+lint) và `docker.yml` (image build) |
+| **D** — Hardening | ✅ | Rate limit, pino logging, X-Correlation-ID, MongoDB compound indexes |
+| **E** — Polish | ✅ | CSV export payroll, Admin UX (status badge, reject inline), RUNBOOK + RELEASE_CHECKLIST |
+
+**G0 hoàn tất 2026-04-22 → sẵn sàng bắt đầu G1 (Realtime & Concurrency).**
 
 ---
 
@@ -42,12 +49,12 @@
 
 | Mức ưu tiên | Hạng mục | Trạng thái | Outcome mong muốn |
 |---|---|---|---|
-| P0 | Automated tests cho backend core flows | Chưa đạt | Có test cho auth, RBAC, registration approval, shift change, payroll |
-| P0 | CI pipeline chuẩn (lint + test + build) | Chưa đạt | PR có quality gate tự động trước merge |
-| P1 | Observability & vận hành | Chưa đạt | Structured logging, request correlation, error tracking |
-| P1 | Hardening security | Một phần | Rate limit auth/refresh, CORS production rõ ràng, audit coverage đầy đủ |
+| P0 | Automated tests cho backend core flows | **Đạt** (59 tests) | auth, RBAC, registration approval, shift change, payroll — 59/59 pass |
+| P0 | CI pipeline chuẩn (lint + test + build) | **Đạt** | `ci.yml` + `docker.yml` — gate trên `main`/`develop` và PR |
+| P1 | Observability & vận hành | **Đạt** | pino structured logging, X-Correlation-ID per request, error context đầy đủ |
+| P1 | Hardening security | **Đạt (auth)** | Rate limit login/register/refresh; CORS production cần cấu hình `.env` trước deploy |
 | P1 | API governance | Một phần | Versioning discipline, changelog API, docs contract ổn định |
-| P2 | Performance & indexing review | Chưa đạt | Query lớn (admin/audit/report) ổn định khi data tăng |
+| P2 | Performance & indexing review | **Đạt** | Compound indexes: Registration (4), GroupMember (2); các model khác đã đủ |
 
 ---
 

@@ -30,7 +30,7 @@
 | Mức | Hạng mục | Trạng thái |
 |-----|----------|------------|
 | P0 | Automated tests (auth, RBAC, registration, shift change, payroll) | Chưa có |
-| P0 | CI pipeline (lint + test + build) | Chưa có |
+| P0 | CI pipeline (lint + test + build) | ✅ `.github/workflows/ci.yml` + `docker.yml` |
 | P1 | Observability: structured logging, request correlation ID | Chưa có |
 | P1 | Rate limiting cho auth/refresh endpoints | Chưa có |
 | P2 | MongoDB index review cho query tần suất cao | Chưa làm |
@@ -41,7 +41,7 @@
 
 | Giai đoạn | Tên | Thời gian ước tính | Trạng thái |
 |-----------|-----|-------------------|------------|
-| **G0** | Nền tảng kỹ thuật | ~12 tuần | 🔄 Đang thực hiện |
+| **G0** | Nền tảng kỹ thuật | ~12 tuần | ✅ Hoàn tất |
 | **G1** | Realtime & Concurrency | ~15 ngày (sau G0) | ⏳ Chưa bắt đầu |
 | **G2** | Smart Scheduling | ~1 tháng (sau G1) | ⏳ Chưa bắt đầu |
 | **G3** | Quản lý toàn diện | ~2 tháng (sau G2) | ⏳ Chưa bắt đầu |
