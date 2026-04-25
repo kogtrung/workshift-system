@@ -210,47 +210,69 @@ Các type: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`
 **Đã hoàn thành:**
 
 - [x] Tạo `CLAUDE.md` (file này) — project guidance cho Claude Code
-- [x] Tạo `.claude/rules/` (11 rule files, scope theo `paths`):
-  - `commands.md` — lệnh dev/build/lint
-  - `environment.md` — biến môi trường `.env`
-  - `backend-architecture.md` — layer layout, API conventions, auth flow
-  - `frontend-architecture.md` — cấu trúc frontend, auth state, routing
-  - `business-rules.md` — toàn bộ quy tắc nghiệp vụ domain
-  - `domain-models.md` — key Mongoose models
-  - `api-routes.md` — bảng route đầy đủ
-  - `git-workflow.md` — branch naming, commit format, PR checklist
-  - `typescript-and-build.md` — NodeNext `.js` extension requirement
-  - `docker.md` — multi-stage Dockerfile
-  - `project-status.md` — gap kỹ thuật, roadmap
+- [x] Tạo `.claude/rules/` (11 rule files, scope theo `paths`)
 - [x] Tạo `~/.claude/CLAUDE.md` (global) — luôn trả lời tiếng Việt, không tự xóa file
 - [x] Tạo `.claude/agents/researcher.md` — research agent
-- [x] Tạo `.claude/commands/` (5 skill files):
-  - `/new-api` — tạo backend endpoint mới (route+controller+service+validation)
-  - `/new-page` — tạo frontend page mới (service+page+components)
-  - `/update-spec` — cập nhật `docs/spec.md` sau thay đổi API
-  - `/check-backend` — kiểm tra TypeScript build + conventions
-  - `/check-frontend` — kiểm tra ESLint + conventions + API wiring
-- [x] Viết lại `docs/MASTER_ROADMAP.md` — gộp 3 nguồn (MASTER_ROADMAP cũ + tasks.md + shift-management-system.md) thành một tài liệu duy nhất với G0→G4, AI roadmap, License model
+- [x] Tạo `.claude/commands/` (5 skill files): `/new-api`, `/new-page`, `/update-spec`, `/check-backend`, `/check-frontend`
+- [x] Viết lại `docs/MASTER_ROADMAP.md` — gộp 3 nguồn thành một tài liệu duy nhất (G0→G4, AI roadmap, License model)
+
+---
+
+### Session 2026-04-22→25 — G0: Hoàn tất tất cả giai đoạn A–E
+
+**Đã hoàn thành:**
+
+**G0-A (Frontend refactor):**
+- [x] Cấu trúc mới: `components/`, `services/`, `hooks/`, `configs/`, `states/` — không còn `features/*`
+- [x] Lint 0 lỗi, build sạch
+
+**G0-B (Backend tests — 59 tests / 5 suites):**
+- [x] Jest + ts-jest + mongodb-memory-server + supertest
+- [x] `tests/auth/` — register, login, refresh, logout, RBAC
+- [x] `tests/groups/` — create group, join, approve member
+- [x] `tests/registration/` — đăng ký ca, duyệt, từ chối, quota (12 tests)
+- [x] `tests/shiftChange/` — tạo yêu cầu, duyệt, từ chối, RBAC (11 tests)
+- [x] `tests/payroll/` — salary config, payroll month, RBAC (9 tests)
+- **Key insight:** `shiftMatchesMemberAvailability` trả `false` khi `availabilities` rỗng — member phải `PUT /api/v1/availability` trước khi đăng ký ca
+
+**G0-C (CI/CD):**
+- [x] `.github/workflows/ci.yml` — trigger: PR vào main/develop; jobs: backend (build+test) + frontend (lint+build) song song
+- [x] `.github/workflows/deploy.yml` — trigger: push vào main/develop; jobs: backend-quality + frontend-quality → deploy (Docker build+push + Render webhook)
+- [x] Xóa `docker.yml` (thừa, hợp nhất vào deploy.yml)
+- **Secrets cần cấu hình:** `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`, `VITE_API_BASE_URL`, `RENDER_BACKEND_HOOK_URL`, `RENDER_FRONTEND_HOOK_URL`
+
+**G0-D (Production hardening):**
+- [x] `src/middleware/rateLimiter.ts` — express-rate-limit; login (10/15min), register (5/1h), refresh (20/15min); bypass tự động khi `NODE_ENV=test`
+- [x] `src/config/logger.ts` — pino structured logging, pino-pretty cho dev
+- [x] `src/middleware/correlationId.ts` — X-Correlation-ID per request (randomUUID nếu không có header)
+- [x] `src/app.ts` — tích hợp pino-http, correlationId, bỏ qua health check log
+- [x] `src/middleware/errorHandler.ts` — dùng `logger.error` thay `console.error`
+- [x] `src/models/Registration.ts` — 4 compound indexes
+- [x] `src/models/GroupMember.ts` — 2 compound indexes
+
+**G0-E (Product polish):**
+- [x] `AdminUsersPage.jsx` — StatusBadge, RoleBadge, toggle Khoá/Mở khoá, Enter-key search
+- [x] `AdminAuditLogsPage.jsx` — ActionBadge color, Refresh button, fixed field names
+- [x] `ShiftChangeRequestsPage.jsx` — inline RejectRow (Enter/Esc), thay `prompt()`
+- [x] `PayrollTable.jsx` — CSV export (UTF-8 BOM cho Excel), @username display
+- [x] `docs/RUNBOOK.md` — deployment guide, env setup, rate limits, rollback, MongoDB indexes
+- [x] `docs/RELEASE_CHECKLIST.md` — pre/during/post deploy checklist
 
 ---
 
 ## Việc cần làm — Session tiếp theo
 
-### Ưu tiên cao (Giai đoạn A — Frontend refactor)
+### G1 — Realtime & Concurrency (tiếp theo trong roadmap)
 
-- [ ] Kiểm tra toàn bộ pages trong `workshift-frontend/src/pages/` đã dùng đúng cấu trúc mới (`components/`, `services/`, `hooks/`) chưa — chạy `/check-frontend` để rà soát
-- [ ] Đảm bảo tất cả import paths trong frontend không còn trỏ vào cấu trúc `features/*` cũ
-- [ ] Chạy `npm run build` và `npm run lint` trong `workshift-frontend/` — đảm bảo 0 lỗi
-- [ ] Chạy full flow local: login → tạo group → tạo shift → đăng ký ca → duyệt → xem payroll
+- [ ] P01: Outbox pattern + EventBus (MQ-ready)
+- [ ] P02: WebSocket gateway + JWT room auth
+- [ ] P03: Registration realtime (claim/release)
+- [ ] P04: Concurrency an toàn (Mongo transaction, Redis lock)
+- [ ] P05: Redis cache + backplane
+- [ ] P06: Frontend realtime UI (socket hook, availability UI)
+- [ ] P07: Feature flag, load test, vận hành
 
-### Ưu tiên trung (dọn dẹp tài liệu)
+### Việc còn tồn đọng nhỏ
 
 - [ ] Quyết định xóa `docs/shift-management-system.md` (nội dung đã migrate vào MASTER_ROADMAP)
-- [ ] Cập nhật `docs/tasks.md` để reference `docs/MASTER_ROADMAP.md` cho roadmap dài hạn
-- [ ] Commit tất cả thay đổi session này lên `develop`
-
-### Sau khi G0-A xong → bắt đầu G0-B (Tests)
-
-- [ ] Chọn test framework: Jest hoặc Vitest cho backend
-- [ ] Thiết lập test database (MongoDB in-memory hoặc test container)
-- [ ] Viết test đầu tiên: auth flow (register → login → refresh → logout)
+- [ ] Cập nhật `docs/tasks.md` section 1.2 và 2 để phản ánh trạng thái G0 đã hoàn tất
