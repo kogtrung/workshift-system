@@ -2,6 +2,28 @@ function fmtCurrency(val) {
   return Number(val).toLocaleString('vi-VN') + 'đ'
 }
 
+function exportCsv(entries, month, year) {
+  const BOM = '﻿'
+  const header = ['STT', 'Họ tên', 'Username', 'Số ca', 'Tổng giờ', 'Lương/giờ', 'Tổng lương']
+  const rows = entries.map((e, i) => [
+    i + 1,
+    e.fullName || '',
+    e.username || '',
+    Number(e.totalShifts ?? e.shiftsWorked ?? 0),
+    Number(e.totalHours).toFixed(1),
+    e.hourlyRate != null ? Number(e.hourlyRate) : '',
+    Number(e.totalPay ?? e.estimatedPay ?? 0),
+  ])
+  const csv = BOM + [header, ...rows].map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n')
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `payroll_${year}_${String(month).padStart(2, '0')}.csv`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
 export function PayrollTable({ entries, month, year, totalShifts, totalHours, totalPay }) {
   if (!entries.length) {
     return (
@@ -15,11 +37,20 @@ export function PayrollTable({ entries, month, year, totalShifts, totalHours, to
 
   return (
     <div className="bg-surface-container-lowest rounded-2xl border border-outline/10 shadow-sm overflow-hidden">
-      <div className="px-6 py-4 bg-surface-container-low border-b border-outline/10">
-        <h4 className="text-base font-bold text-on-surface flex items-center gap-2">
-          <span className="material-symbols-outlined text-primary text-lg">receipt_long</span>
+      <div className="px-6 py-4 bg-surface-container-low border-b border-outline/10 flex items-center gap-2">
+        <span className="material-symbols-outlined text-primary text-lg">receipt_long</span>
+        <h4 className="text-base font-bold text-on-surface">
           Chi tiết bảng lương — Tháng {month}/{year}
         </h4>
+        <button
+          type="button"
+          onClick={() => exportCsv(entries, month, year)}
+          className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-outline/20 text-xs font-bold text-on-surface-variant hover:bg-surface-container transition-colors"
+          title="Xuất CSV"
+        >
+          <span className="material-symbols-outlined text-base">download</span>
+          Xuất CSV
+        </button>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
@@ -42,7 +73,10 @@ export function PayrollTable({ entries, month, year, totalShifts, totalHours, to
                     <div className="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container text-xs font-bold">
                       {(entry.fullName || '?').charAt(0).toUpperCase()}
                     </div>
-                    <span className="font-bold text-on-surface">{entry.fullName || `NV #${entry.userId}`}</span>
+                    <div>
+                      <div className="font-bold text-on-surface">{entry.fullName || `NV #${entry.userId}`}</div>
+                      {entry.username && <div className="text-xs text-on-surface-variant">@{entry.username}</div>}
+                    </div>
                   </div>
                 </td>
                 <td className="px-4 py-4 text-center font-bold text-on-surface">{Number(entry.totalShifts ?? entry.shiftsWorked ?? 0)}</td>

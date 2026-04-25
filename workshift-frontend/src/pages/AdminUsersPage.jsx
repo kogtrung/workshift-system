@@ -1,21 +1,47 @@
 import { useEffect, useState } from "react"
 import { getAdminUsers, toggleAdminUserStatus } from '../services/admin/adminApi'
 
+function StatusBadge({ status }) {
+  const active = status === 'ACTIVE'
+  return (
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold ${
+      active
+        ? 'bg-emerald-100 text-emerald-700'
+        : 'bg-error-container/30 text-error'
+    }`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${active ? 'bg-emerald-500' : 'bg-error'}`} />
+      {active ? 'Hoạt động' : 'Bị khóa'}
+    </span>
+  )
+}
+
+function RoleBadge({ role }) {
+  const isAdmin = role === 'ADMIN'
+  return (
+    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold ${
+      isAdmin ? 'bg-primary-container text-on-primary-container' : 'bg-surface-container text-on-surface-variant'
+    }`}>
+      {isAdmin ? 'Admin' : 'User'}
+    </span>
+  )
+}
+
 export function AdminUsersPage() {
   const [items, setItems] = useState(null)
   const [page, setPage] = useState(0)
   const [size] = useState(10)
   const [search, setSearch] = useState("")
+  const [pendingSearch, setPendingSearch] = useState("")
 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [actioningId, setActioningId] = useState(null)
 
-  async function load() {
+  async function load(s = search) {
     setLoading(true)
     setError("")
     try {
-      const res = await getAdminUsers({ page, size, search: search.trim() || null })
+      const res = await getAdminUsers({ page, size, search: s.trim() || null })
       const data = res?.data ?? res
       setItems(data)
     } catch (e) {
@@ -30,10 +56,17 @@ export function AdminUsersPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page])
 
+  function applySearch() {
+    setSearch(pendingSearch)
+    setPage(0)
+    load(pendingSearch)
+  }
+
   const list = items?.content || items?.items || []
   const totalPages = items?.totalPages ?? 0
 
-  async function handleToggle(userId) {
+  async function handleToggle(userId, currentStatus) {
+    if (!window.confirm(currentStatus === 'ACTIVE' ? 'Khoá tài khoản này?' : 'Mở khoá tài khoản này?')) return
     setActioningId(userId)
     try {
       await toggleAdminUserStatus(userId)
@@ -48,7 +81,7 @@ export function AdminUsersPage() {
   return (
     <div className="w-full space-y-6">
       <div className="space-y-1">
-        <h2 className="text-3xl font-extrabold text-on-surface tracking-tight">Quản lý người dùng hệ thống</h2>
+        <h2 className="text-3xl font-extrabold text-on-surface tracking-tight">Quản lý người dùng</h2>
         <p className="text-on-surface-variant font-medium">Danh sách người dùng hệ thống</p>
       </div>
 
@@ -58,22 +91,20 @@ export function AdminUsersPage() {
             Tìm kiếm
           </label>
           <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="username/email/fullName..."
+            value={pendingSearch}
+            onChange={(e) => setPendingSearch(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && applySearch()}
+            placeholder="username / email / họ tên..."
             className="w-full bg-surface-container-lowest rounded-xl border border-outline/20 px-4 py-3 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
           />
         </div>
         <button
-          className="px-5 py-2.5 bg-primary text-on-primary font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-md"
+          className="px-5 py-2.5 bg-primary text-on-primary font-semibold rounded-xl hover:bg-primary/90 transition-colors shadow-md disabled:opacity-50"
           type="button"
-          onClick={() => {
-            setPage(0)
-            load()
-          }}
+          onClick={applySearch}
           disabled={loading}
         >
-          Áp dụng
+          Tìm kiếm
         </button>
       </div>
 
@@ -112,20 +143,22 @@ export function AdminUsersPage() {
                     <td className="px-6 py-4 text-sm text-on-surface-variant">#{u.id}</td>
                     <td className="px-6 py-4">
                       <div className="font-bold text-on-surface">{u.fullName || u.username}</div>
-                      <div className="text-xs text-on-surface-variant mt-1">{u.email}</div>
+                      <div className="text-xs text-on-surface-variant mt-0.5">{u.username} · {u.email}</div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-on-surface">{u.globalRole}</td>
-                    <td className="px-6 py-4 text-sm text-on-surface-variant">
-                      {u.status}
-                    </td>
+                    <td className="px-6 py-4"><RoleBadge role={u.globalRole} /></td>
+                    <td className="px-6 py-4"><StatusBadge status={u.status} /></td>
                     <td className="px-6 py-4 text-right">
                       <button
                         type="button"
-                        onClick={() => handleToggle(u.id)}
+                        onClick={() => handleToggle(u.id, u.status)}
                         disabled={actioningId === u.id}
-                        className="px-3 py-2 bg-surface-container-highest text-on-surface-variant text-xs font-bold rounded-lg hover:opacity-90 transition-colors disabled:opacity-50"
+                        className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors disabled:opacity-50 ${
+                          u.status === 'ACTIVE'
+                            ? 'bg-error-container/30 text-error hover:bg-error-container/50'
+                            : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                        }`}
                       >
-                        {actioningId === u.id ? "Đang..." : "Đổi trạng thái"}
+                        {actioningId === u.id ? '...' : u.status === 'ACTIVE' ? 'Khoá' : 'Mở khoá'}
                       </button>
                     </td>
                   </tr>
@@ -139,9 +172,9 @@ export function AdminUsersPage() {
               type="button"
               onClick={() => setPage((p) => Math.max(0, p - 1))}
               disabled={page <= 0 || loading}
-              className="px-4 py-2 rounded-lg border border-outline/10 hover:bg-surface-container-high disabled:opacity-50"
+              className="px-4 py-2 rounded-lg border border-outline/10 hover:bg-surface-container-high disabled:opacity-50 text-sm font-medium"
             >
-              Trước
+              ← Trước
             </button>
             <div className="text-sm text-on-surface-variant">
               Trang {page + 1} / {totalPages || 1}
@@ -150,9 +183,9 @@ export function AdminUsersPage() {
               type="button"
               onClick={() => setPage((p) => p + 1)}
               disabled={page >= totalPages - 1 || loading}
-              className="px-4 py-2 rounded-lg border border-outline/10 hover:bg-surface-container-high disabled:opacity-50"
+              className="px-4 py-2 rounded-lg border border-outline/10 hover:bg-surface-container-high disabled:opacity-50 text-sm font-medium"
             >
-              Sau
+              Sau →
             </button>
           </div>
         </div>
@@ -160,4 +193,3 @@ export function AdminUsersPage() {
     </div>
   )
 }
-

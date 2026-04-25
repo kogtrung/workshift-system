@@ -29,6 +29,9 @@ const groupMemberSchema = new mongoose.Schema<IGroupMember>(
 );
 
 groupMemberSchema.index({ groupId: 1, userId: 1 }, { unique: true });
+// Queries: pending list, approved member lookup
+groupMemberSchema.index({ groupId: 1, status: 1 });
+groupMemberSchema.index({ userId: 1, status: 1 });
 
 groupMemberSchema.set('toJSON', {
   transform(_doc, ret) {
